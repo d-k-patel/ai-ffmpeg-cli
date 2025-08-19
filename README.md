@@ -10,9 +10,9 @@
 
 ![aiclip preview](assets/preview.png)
 
-**aiclip** is an AI-powered CLI that translates natural language into safe, previewable `ffmpeg` commands. Built for developers, content creators, and anyone who works with media files but doesn't want to memorize complex syntax.
+**ai-ffmpeg-cli** is an AI-powered CLI that translates natural language into safe, previewable `ffmpeg` commands. Built for developers, content creators, and anyone who works with media files but doesn't want to memorize complex syntax.
 
-## ✨ Why aiclip?
+## ✨ Why ai-ffmpeg-cli?
 
 - 🤖 **AI-Native**: Translate plain English to perfect ffmpeg commands
 - 🔒 **Safety First**: Preview every command before execution  
