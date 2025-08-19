@@ -3,11 +3,11 @@
 import json
 import subprocess
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+from unittest.mock import patch
 
-import pytest
-
-from ai_ffmpeg_cli.context_scanner import _ffprobe_duration, scan
+from ai_ffmpeg_cli.context_scanner import _ffprobe_duration
+from ai_ffmpeg_cli.context_scanner import scan
 
 
 class TestFfprobeDuration:
@@ -121,11 +121,10 @@ class TestScan:
         (tmp_path / "image.png").write_bytes(b"fake image")
         (tmp_path / "text.txt").write_bytes(b"text file")
 
-        with patch("ai_ffmpeg_cli.context_scanner.Path.cwd", return_value=tmp_path):
-            with patch(
-                "ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=120.0
-            ):
-                result = scan()
+        with patch(
+            "ai_ffmpeg_cli.context_scanner.Path.cwd", return_value=tmp_path
+        ), patch("ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=120.0):
+            result = scan()
 
         assert result["cwd"] == str(tmp_path)
         video_names = [Path(v).name for v in result["videos"]]

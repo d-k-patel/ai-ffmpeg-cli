@@ -2,18 +2,18 @@
 
 import subprocess
 from pathlib import Path
-from unittest.mock import Mock, patch, call
+from unittest.mock import Mock
+from unittest.mock import call
+from unittest.mock import patch
 
 import pytest
 
-from ai_ffmpeg_cli.executor import (
-    _check_overwrite_protection,
-    _extract_output_path,
-    _format_command,
-    preview,
-    run,
-)
 from ai_ffmpeg_cli.errors import ExecError
+from ai_ffmpeg_cli.executor import _check_overwrite_protection
+from ai_ffmpeg_cli.executor import _extract_output_path
+from ai_ffmpeg_cli.executor import _format_command
+from ai_ffmpeg_cli.executor import preview
+from ai_ffmpeg_cli.executor import run
 
 
 class TestFormatCommand:
@@ -186,9 +186,8 @@ class TestCheckOverwriteProtection:
 
         with patch(
             "ai_ffmpeg_cli.executor.confirm_prompt", return_value=True
-        ) as mock_confirm:
-            with patch("ai_ffmpeg_cli.executor.Console"):
-                result = _check_overwrite_protection(commands, assume_yes=False)
+        ) as mock_confirm, patch("ai_ffmpeg_cli.executor.Console"):
+            result = _check_overwrite_protection(commands, assume_yes=False)
 
         assert result is True
         # Should still prompt because one file exists
@@ -224,9 +223,8 @@ class TestPreview:
         console_instance = mock_console.return_value
         console_instance.print.assert_called_once()
 
-        # Table should be created with correct number of rows
-        table_arg = console_instance.print.call_args[0][0]
-        # Would need to inspect table structure in real implementation
+        # Table should be created with correct number of rows (assert print called)
+        assert console_instance.print.called
 
 
 class TestRun:

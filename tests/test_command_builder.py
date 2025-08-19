@@ -13,9 +13,7 @@ def test_convert_defaults_to_h264_aac():
         ],
     )
     cmds = build_commands(plan, assume_yes=False)
-    assert cmds == [
-        ["ffmpeg", "-i", "input.mov", "-c:v", "libx264", "-c:a", "aac", "input.mp4"]
-    ]
+    assert cmds == [["ffmpeg", "-i", "input.mov", "-c:v", "libx264", "-c:a", "aac", "input.mp4"]]
 
 
 def test_extract_audio_command():
@@ -154,9 +152,7 @@ def test_compress_default_and_override_crf():
         ],
     )
     cmds_default = build_commands(plan_default)
-    assert cmds_default == [
-        ["ffmpeg", "-i", "in.mp4", "-c:v", "libx265", "-crf", "28", "out.mp4"]
-    ]
+    assert cmds_default == [["ffmpeg", "-i", "in.mp4", "-c:v", "libx265", "-crf", "28", "out.mp4"]]
 
     # override via args (simulating router adding -crf 22)
     plan_override = CommandPlan(
@@ -197,9 +193,7 @@ def test_frames_default_and_custom_fps():
         ],
     )
     cmds_default = build_commands(plan_default)
-    assert cmds_default == [
-        ["ffmpeg", "-i", "in.mp4", "-vf", "fps=1/5", "in_frame_%04d.png"]
-    ]
+    assert cmds_default == [["ffmpeg", "-i", "in.mp4", "-vf", "fps=1/5", "in_frame_%04d.png"]]
 
     # custom fps present in args
     plan_custom = CommandPlan(
@@ -213,6 +207,4 @@ def test_frames_default_and_custom_fps():
         ],
     )
     cmds_custom = build_commands(plan_custom)
-    assert cmds_custom == [
-        ["ffmpeg", "-i", "in.mp4", "-vf", "fps=2", "in_frame_%04d.png"]
-    ]
+    assert cmds_custom == [["ffmpeg", "-i", "in.mp4", "-vf", "fps=2", "in_frame_%04d.png"]]

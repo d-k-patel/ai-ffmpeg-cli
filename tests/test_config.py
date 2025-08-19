@@ -1,13 +1,13 @@
 """Tests for config.py configuration module."""
 
 import os
-from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 from pydantic import ValidationError
 
-from ai_ffmpeg_cli.config import AppConfig, load_config
+from ai_ffmpeg_cli.config import AppConfig
+from ai_ffmpeg_cli.config import load_config
 from ai_ffmpeg_cli.errors import ConfigError
 
 
@@ -118,25 +118,18 @@ class TestLoadConfig:
     @patch("ai_ffmpeg_cli.config.load_dotenv")
     @patch("ai_ffmpeg_cli.config.AppConfig")
     @patch("ai_ffmpeg_cli.config.shutil.which")
-    def test_load_config_validation_error(
-        self, mock_which, mock_app_config, mock_load_dotenv
-    ):
+    def test_load_config_validation_error(self, mock_which, mock_app_config, mock_load_dotenv):
         """Test config loading with validation error."""
         mock_which.return_value = "/usr/bin/ffmpeg"
         # Create proper ValidationError with line_errors as list
-        from pydantic_core import ValidationError as CoreValidationError
 
-        mock_app_config.side_effect = ValidationError.from_exception_data(
-            "Invalid config", []
-        )
+        mock_app_config.side_effect = ValidationError.from_exception_data("Invalid config", [])
 
         with pytest.raises(ConfigError):
             load_config()
 
     @patch("ai_ffmpeg_cli.config.load_dotenv")
-    @patch.dict(
-        os.environ, {"OPENAI_API_KEY": "test-key", "AICLIP_MODEL": "custom-model"}
-    )
+    @patch.dict(os.environ, {"OPENAI_API_KEY": "test-key", "AICLIP_MODEL": "custom-model"})
     @patch("ai_ffmpeg_cli.config.shutil.which")
     def test_load_config_with_env_vars(self, mock_which, mock_load_dotenv):
         """Test config loading with environment variables."""

@@ -1,17 +1,12 @@
 """Comprehensive tests for io_utils.py file utilities."""
 
-import glob
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
-
-from ai_ffmpeg_cli.io_utils import (
-    ensure_parent_dir,
-    expand_globs,
-    is_safe_path,
-    most_recent_file,
-)
+from ai_ffmpeg_cli.io_utils import ensure_parent_dir
+from ai_ffmpeg_cli.io_utils import expand_globs
+from ai_ffmpeg_cli.io_utils import is_safe_path
+from ai_ffmpeg_cli.io_utils import most_recent_file
 
 
 class TestExpandGlobs:
@@ -251,7 +246,6 @@ class TestIsSafePath:
 
     def test_various_path_types(self):
         """Test different path object types."""
-        import os
 
         # Test string paths
         assert is_safe_path("normal/path.txt") is True
@@ -336,12 +330,10 @@ class TestEnsureParentDir:
 
         # The current implementation may not raise an exception
         # Let's test that it handles this case gracefully
-        try:
+        from contextlib import suppress
+
+        with suppress(FileExistsError, OSError, FileNotFoundError):
             ensure_parent_dir(file_path)
-            # If no exception, that's also acceptable behavior
-        except (FileExistsError, OSError, FileNotFoundError):
-            # These exceptions are expected in this edge case
-            pass
 
     def test_ensure_parent_permission_error(self, tmp_path):
         """Test handling permission errors."""

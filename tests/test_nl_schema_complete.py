@@ -5,13 +5,11 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from ai_ffmpeg_cli.nl_schema import (
-    Action,
-    CommandEntry,
-    CommandPlan,
-    FfmpegIntent,
-    _seconds_to_timestamp,
-)
+from ai_ffmpeg_cli.nl_schema import Action
+from ai_ffmpeg_cli.nl_schema import CommandEntry
+from ai_ffmpeg_cli.nl_schema import CommandPlan
+from ai_ffmpeg_cli.nl_schema import FfmpegIntent
+from ai_ffmpeg_cli.nl_schema import _seconds_to_timestamp
 
 
 class TestSecondsToTimestamp:
@@ -180,7 +178,9 @@ class TestFfmpegIntent:
     def test_timestamp_coercion_end(self):
         """Test that numeric end times are converted to timestamps."""
         intent = FfmpegIntent(
-            action=Action.trim, inputs=[Path("input.mp4")], end=90  # Numeric seconds
+            action=Action.trim,
+            inputs=[Path("input.mp4")],
+            end=90,  # Numeric seconds
         )
 
         assert intent.end == "00:01:30"
@@ -207,9 +207,7 @@ class TestFfmpegIntent:
 
     def test_trim_validation_with_duration(self):
         """Test trim validation with duration."""
-        intent = FfmpegIntent(
-            action=Action.trim, inputs=[Path("input.mp4")], duration=30.0
-        )
+        intent = FfmpegIntent(action=Action.trim, inputs=[Path("input.mp4")], duration=30.0)
 
         assert intent.duration == 30.0
 
@@ -261,25 +259,19 @@ class TestFfmpegIntent:
 
     def test_convert_validation_no_inputs(self):
         """Test convert validation fails without inputs."""
-        with pytest.raises(
-            ValidationError, match="convert/compress requires at least one input"
-        ):
+        with pytest.raises(ValidationError, match="convert/compress requires at least one input"):
             FfmpegIntent(action=Action.convert, inputs=[])
 
     def test_compress_validation_success(self):
         """Test successful compress validation."""
-        intent = FfmpegIntent(
-            action=Action.compress, inputs=[Path("input.mp4")], crf=28
-        )
+        intent = FfmpegIntent(action=Action.compress, inputs=[Path("input.mp4")], crf=28)
 
         assert intent.action == Action.compress
         assert intent.crf == 28
 
     def test_compress_validation_no_inputs(self):
         """Test compress validation fails without inputs."""
-        with pytest.raises(
-            ValidationError, match="convert/compress requires at least one input"
-        ):
+        with pytest.raises(ValidationError, match="convert/compress requires at least one input"):
             FfmpegIntent(action=Action.compress, inputs=[])
 
     def test_extract_audio_validation_success(self):
@@ -290,9 +282,7 @@ class TestFfmpegIntent:
 
     def test_extract_audio_validation_no_inputs(self):
         """Test extract_audio validation fails without inputs."""
-        with pytest.raises(
-            ValidationError, match="extract_audio requires an input file"
-        ):
+        with pytest.raises(ValidationError, match="extract_audio requires an input file"):
             FfmpegIntent(action=Action.extract_audio, inputs=[])
 
     def test_thumbnail_fps_incompatibility(self):

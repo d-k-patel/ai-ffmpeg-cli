@@ -2,8 +2,6 @@
 
 from unittest.mock import patch
 
-import pytest
-
 from ai_ffmpeg_cli.confirm import confirm_prompt
 
 

@@ -1,14 +1,15 @@
 """Tests for main.py CLI entry point."""
 
-import os
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+from unittest.mock import patch
 
 import pytest
 import typer
 
-from ai_ffmpeg_cli.main import _make_llm, app, main
 from ai_ffmpeg_cli.errors import ConfigError
+from ai_ffmpeg_cli.main import _make_llm
+from ai_ffmpeg_cli.main import main
 
 
 class TestMakeLLM:
@@ -58,7 +59,8 @@ class TestMainCLI:
     ):
         """Test one-shot mode with successful execution."""
         from ai_ffmpeg_cli.config import AppConfig
-        from ai_ffmpeg_cli.nl_schema import FfmpegIntent, Action
+        from ai_ffmpeg_cli.nl_schema import Action
+        from ai_ffmpeg_cli.nl_schema import FfmpegIntent
 
         # Setup mocks
         config = AppConfig(openai_api_key="test-key", dry_run=False)
@@ -97,9 +99,7 @@ class TestMainCLI:
     @patch("ai_ffmpeg_cli.main.load_config")
     @patch("ai_ffmpeg_cli.main.scan")
     @patch("ai_ffmpeg_cli.main._make_llm")
-    def test_one_shot_mode_parse_error(
-        self, mock_make_llm, mock_scan, mock_load_config
-    ):
+    def test_one_shot_mode_parse_error(self, mock_make_llm, mock_scan, mock_load_config):
         """Test one-shot mode with parsing error."""
         from ai_ffmpeg_cli.config import AppConfig
         from ai_ffmpeg_cli.errors import ParseError

@@ -18,9 +18,7 @@ from .intent_router import route_intent
 from .llm_client import LLMClient
 from .llm_client import OpenAIProvider
 
-app = typer.Typer(
-    add_completion=False, help="AI-powered ffmpeg CLI", invoke_without_command=True
-)
+app = typer.Typer(add_completion=False, help="AI-powered ffmpeg CLI", invoke_without_command=True)
 
 
 def _setup_logging(verbose: bool) -> None:
@@ -34,9 +32,7 @@ def main(
     prompt: str | None = typer.Argument(
         None, help="Natural language prompt; if provided, runs once and exits"
     ),
-    yes: bool = typer.Option(
-        False, "--yes/--no-yes", help="Skip confirmation and overwrite"
-    ),
+    yes: bool = typer.Option(False, "--yes/--no-yes", help="Skip confirmation and overwrite"),
     model: str | None = typer.Option(None, "--model", help="LLM model override"),
     dry_run: bool = typer.Option(None, "--dry-run/--no-dry-run", help="Preview only"),
     timeout: int = typer.Option(60, "--timeout", help="LLM timeout seconds"),
@@ -70,9 +66,7 @@ def main(
                 # Always show preview before asking for confirmation
                 preview(commands)
                 confirmed = (
-                    True
-                    if yes
-                    else confirm_prompt("Run these commands?", cfg.confirm_default, yes)
+                    True if yes else confirm_prompt("Run these commands?", cfg.confirm_default, yes)
                 )
                 code = run(
                     commands,
@@ -122,9 +116,7 @@ def nl(
             confirmed = (
                 True
                 if assume_yes
-                else confirm_prompt(
-                    "Run these commands?", cfg.confirm_default, assume_yes
-                )
+                else confirm_prompt("Run these commands?", cfg.confirm_default, assume_yes)
             )
             return_code = 0
             if confirmed:
@@ -163,9 +155,7 @@ def nl(
 # Stretch goal placeholder
 @app.command()
 def explain(
-    ffmpeg_command: str | None = typer.Argument(
-        None, help="Existing ffmpeg command to explain"
-    ),
+    ffmpeg_command: str | None = typer.Argument(None, help="Existing ffmpeg command to explain"),
 ) -> None:
     if not ffmpeg_command:
         rprint("Provide an ffmpeg command to explain.")

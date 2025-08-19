@@ -23,9 +23,7 @@ def build_commands(plan: CommandPlan, assume_yes: bool = False) -> list[list[str
         for i in range(0, len(entry.args), 2):
             flag = entry.args[i]
             val = entry.args[i + 1] if i + 1 < len(entry.args) else None
-            bucket = (
-                pre_input_flags if flag in {"-ss", "-t", "-to"} else post_input_flags
-            )
+            bucket = pre_input_flags if flag in {"-ss", "-t", "-to"} else post_input_flags
             bucket.append(flag)
             if val is not None:
                 bucket.append(val)
@@ -82,8 +80,7 @@ def build_commands(plan: CommandPlan, assume_yes: bool = False) -> list[list[str
 
         # Trim/segment: if only timing flags and no explicit codecs/filters, use copy
         if ("trim" in summary or "segment" in summary) and not any(
-            token in existing_args_str
-            for token in ["-c:v", "-c:a", "-filter", "-vf", "-af"]
+            token in existing_args_str for token in ["-c:v", "-c:a", "-filter", "-vf", "-af"]
         ):
             cmd.extend(["-c", "copy"])
 
