@@ -24,6 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Documentation updates clarifying correct usage of global options and subcommands. Added examples for `nl` subcommand and a note to avoid invoking the binary twice.
 
+## [0.1.4] - 2025-08-19
+
+### Documentation
+- Fix README first command section formatting (interactive vs one-shot examples) and minor spacing in table snippet.
+
 ## [0.1.0] - 2024-01-XX
 
 ### Added
