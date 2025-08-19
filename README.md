@@ -48,16 +48,26 @@ echo "OPENAI_API_KEY=sk-your-key-here" > .env
 
 ### First Command
 
+Interactive mode (type your request after launching):
+
 ```bash
-# Interactive mode - just describe what you want
 aiclip
-> convert this video to 720p
+```
+
+```text
+convert this video to 720p
 ┌───┬──────────────────────────────────────────────────────────┐
 │ # │ Command                                                  │
 ├───┼──────────────────────────────────────────────────────────┤
-│ 1 │ ffmpeg -i input.mp4 -vf scale=1280:720 -c:v libx264... │
+│ 1 │ ffmpeg -i input.mp4 -vf scale=1280:720 -c:v libx264...  │
 └───┴──────────────────────────────────────────────────────────┘
-Run these commands? [Y/n] 
+Run these commands? [Y/n]
+```
+
+Or run a one-shot command (no interactive prompt):
+
+```bash
+aiclip --dry-run "convert input.mp4 to 720p with good quality"
 ```
 
 ## 📖 Usage Examples
