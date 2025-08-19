@@ -1,5 +1,5 @@
 # Multi-stage Docker build for aiclip
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
 
 # Install Python dependencies
 WORKDIR /app
-COPY pyproject.toml ./
+COPY pyproject.toml README.md LICENSE ./
+COPY src ./src
 RUN pip install --no-cache-dir build && \
     python -m build --wheel && \
     pip wheel --no-cache-dir --wheel-dir /app/wheels .
