@@ -1,3 +1,20 @@
+"""Intent routing and command plan generation for ai-ffmpeg-cli.
+
+This module translates parsed user intents (FfmpegIntent) into executable
+command plans (CommandPlan) with security validation and output path derivation.
+
+Key responsibilities:
+- Security validation of input paths and glob patterns
+- Automatic output filename generation based on action type
+- ffmpeg argument construction for different operations
+- Command plan assembly with proper input/output mapping
+
+Security features:
+- Path traversal prevention
+- Directory restriction for glob expansion
+- Unsafe path rejection with logging
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -11,6 +28,18 @@ from .nl_schema import FfmpegIntent
 
 
 def _derive_output_name(input_path: Path, intent: FfmpegIntent) -> Path:
+    """Derive output filename based on input path and action type.
+
+    Generates appropriate output filenames for different ffmpeg operations.
+    Uses explicit output path if provided, otherwise creates action-specific names.
+
+    Args:
+        input_path: Path to the input file
+        intent: Parsed user intent containing action and optional output
+
+    Returns:
+        Path: Output file path with appropriate extension and naming
+    """
     if intent.output:
         return intent.output
     stem = input_path.stem
@@ -35,14 +64,20 @@ def _derive_output_name(input_path: Path, intent: FfmpegIntent) -> Path:
 def route_intent(intent: FfmpegIntent, allowed_dirs: list[Path] | None = None) -> CommandPlan:
     """Route FfmpegIntent to CommandPlan with security validation.
 
+    Translates user intent into executable ffmpeg commands with comprehensive
+    security checks. Handles glob expansion, path validation, and argument
+    construction for all supported operations.
+
     Args:
-        intent: Parsed user intent
+        intent: Parsed user intent containing action, inputs, and parameters
+        allowed_dirs: List of directories allowed for glob expansion (defaults to cwd)
 
     Returns:
-        CommandPlan: Execution plan with validated commands
+        CommandPlan: Execution plan with validated commands and summary
 
     Raises:
-        BuildError: If intent cannot be routed or contains unsafe operations
+        BuildError: If intent cannot be routed, contains unsafe operations,
+                   or no valid input files are found
     """
     # Expand any glob patterns provided with security validation
     derived_inputs: list[Path] = list(intent.inputs)
@@ -95,6 +130,7 @@ def route_intent(intent: FfmpegIntent, allowed_dirs: list[Path] | None = None) -
             if intent.start:
                 args.extend(["-ss", intent.start])
             # If end is provided, prefer -to; otherwise use duration if present
+            # -to is more precise for seeking, -t is for duration limiting
             if intent.end:
                 args.extend(["-to", intent.end])
             elif intent.duration is not None:
@@ -148,6 +184,18 @@ def route_intent(intent: FfmpegIntent, allowed_dirs: list[Path] | None = None) -
 
 
 def _build_summary(intent: FfmpegIntent, entries: list[CommandEntry]) -> str:
+    """Build human-readable summary of the command plan.
+
+    Creates a concise description of what the command plan will do,
+    including action type, file count, and key parameters.
+
+    Args:
+        intent: Original user intent with action and parameters
+        entries: List of command entries to be executed
+
+    Returns:
+        str: Human-readable summary of the operation
+    """
     if intent.action == Action.convert:
         return f"Convert {len(entries)} file(s) to mp4 h264+aac with optional scale {intent.scale or '-'}"
     if intent.action == Action.extract_audio:

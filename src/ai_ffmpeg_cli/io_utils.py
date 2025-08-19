@@ -1,3 +1,24 @@
+"""I/O utilities for ai-ffmpeg-cli with security validation.
+
+This module provides secure file and path handling utilities for the ai-ffmpeg-cli
+package. It includes comprehensive security validation to prevent path traversal,
+command injection, and other security vulnerabilities.
+
+Key features:
+- Secure glob pattern expansion with path validation
+- Comprehensive path safety checks
+- ffmpeg command validation and sanitization
+- User input sanitization
+- Filename sanitization for filesystem safety
+
+Security measures:
+- Path traversal prevention (../, ..\\)
+- System directory access blocking
+- Command injection prevention
+- Input length limits and character filtering
+- Reserved filename handling
+"""
+
 from __future__ import annotations
 
 import glob
@@ -9,19 +30,23 @@ if TYPE_CHECKING:
 
 
 def expand_globs(patterns: Iterable[str], allowed_dirs: list[Path] | None = None) -> list[Path]:
-    """Expand glob patterns safely with path validation.
+    """Expand glob patterns safely with comprehensive path validation.
+
+    Expands glob patterns while ensuring all resulting paths are safe and
+    within allowed directories. Includes DoS protection and pattern validation.
 
     Args:
-        patterns: Glob patterns to expand
-        allowed_dirs: List of allowed directories to search within
+        patterns: Glob patterns to expand (e.g., ["*.mp4", "video_*"])
+        allowed_dirs: List of allowed directories to search within (defaults to cwd)
 
     Returns:
-        List of validated Path objects
+        List of validated Path objects, with duplicates removed
 
-    Security:
+    Security features:
         - Validates all resulting paths for safety
         - Prevents access outside allowed directories
-        - Limits recursive search depth
+        - Limits recursive search depth and result count
+        - Sanitizes glob patterns before expansion
     """
     if allowed_dirs is None:
         allowed_dirs = [Path.cwd()]
@@ -30,25 +55,25 @@ def expand_globs(patterns: Iterable[str], allowed_dirs: list[Path] | None = None
     MAX_GLOB_RESULTS = 1000  # Prevent DoS via huge glob expansions
 
     for pattern in patterns:
-        # Sanitize the pattern itself
+        # Sanitize the pattern itself before expansion
         if not _is_safe_glob_pattern(pattern):
             continue
 
         try:
             matches = glob.glob(pattern, recursive=True)
             if len(matches) > MAX_GLOB_RESULTS:
-                # Log warning and truncate
+                # Log warning and truncate to prevent DoS
                 matches = matches[:MAX_GLOB_RESULTS]
 
             for match in matches:
                 path_obj = Path(match).resolve()
 
-                # Validate each resulting path
+                # Validate each resulting path against security rules
                 if is_safe_path(path_obj, allowed_dirs):
                     paths.append(path_obj)
 
         except (OSError, ValueError):
-            # Skip invalid patterns
+            # Skip invalid patterns that cause expansion errors
             continue
 
     # Remove duplicates while preserving order
@@ -64,22 +89,25 @@ def expand_globs(patterns: Iterable[str], allowed_dirs: list[Path] | None = None
 def _is_safe_glob_pattern(pattern: str) -> bool:
     """Validate glob pattern is safe to use.
 
+    Checks for dangerous patterns that could lead to path traversal,
+    system access, or excessive resource consumption.
+
     Args:
         pattern: Glob pattern to validate
 
     Returns:
-        bool: True if pattern is safe
+        bool: True if pattern is safe for expansion
     """
     if not pattern or not isinstance(pattern, str):
         return False
 
-    # Check for dangerous patterns
+    # Check for dangerous patterns that could cause security issues
     dangerous_sequences = [
         "../",
-        "..\\",  # Path traversal
+        "..\\",  # Path traversal attempts
         "//",
         "\\\\",  # Network paths
-        "*" * 10,  # Excessive wildcards
+        "*" * 10,  # Excessive wildcards (DoS prevention)
         "{" * 5,  # Brace expansion abuse
     ]
 
@@ -88,7 +116,7 @@ def _is_safe_glob_pattern(pattern: str) -> bool:
         if dangerous in pattern_lower:
             return False
 
-    # Check for system directory access
+    # Check for system directory access attempts
     dangerous_roots = [
         "/etc",
         "/proc",
@@ -109,6 +137,10 @@ def _is_safe_glob_pattern(pattern: str) -> bool:
 def is_safe_path(path: object, allowed_dirs: list[Path] | None = None) -> bool:
     """Validate path is safe and within allowed directories.
 
+    Comprehensive path validation that prevents path traversal, system access,
+    and other security vulnerabilities. Validates against allowed directories
+    and blocks access to sensitive system paths.
+
     Args:
         path: Path to validate (str, Path, or other object)
         allowed_dirs: List of allowed parent directories (defaults to cwd)
@@ -121,6 +153,7 @@ def is_safe_path(path: object, allowed_dirs: list[Path] | None = None) -> bool:
         - Blocks path traversal attempts (../, ..\\)
         - Validates against allowed directories
         - Prevents access to sensitive system paths
+        - Handles both Unix and Windows path patterns
     """
     try:
         if path is None:
@@ -135,11 +168,11 @@ def is_safe_path(path: object, allowed_dirs: list[Path] | None = None) -> bool:
         else:
             path_obj = path
 
-        # Resolve to absolute path to detect traversal
+        # Resolve to absolute path to detect traversal attempts
         try:
             resolved_path = path_obj.resolve()
         except (OSError, RuntimeError):
-            # Path resolution failed - unsafe
+            # Path resolution failed - consider unsafe
             return False
 
         # Check for empty or dangerous paths
@@ -156,24 +189,24 @@ def is_safe_path(path: object, allowed_dirs: list[Path] | None = None) -> bool:
         if len(original_str.strip()) <= 3 and any(c in original_str for c in ["/", "\\"]):
             return False
 
-        # Detect path traversal attempts
+        # Detect path traversal attempts in path components
         path_parts = path_obj.parts
         if ".." in path_parts or any("." * 3 in part for part in path_parts):
             return False
 
-        # Check for dangerous path patterns
+        # Check for dangerous path patterns (system directories)
         dangerous_patterns = [
             "/etc",
             "/proc",
             "/sys",
             "/dev",
-            "/boot",  # Unix system dirs
+            "/boot",  # Unix system directories
             "C:\\Windows",
             "C:\\System32",
-            "C:\\Program Files",  # Windows system dirs
+            "C:\\Program Files",  # Windows system directories
             "~/.ssh",
             "~/.aws",
-            "~/.config",  # User sensitive dirs
+            "~/.config",  # User sensitive directories
         ]
 
         path_lower = path_str.lower()
@@ -215,16 +248,45 @@ def is_safe_path(path: object, allowed_dirs: list[Path] | None = None) -> bool:
 
 
 def ensure_parent_dir(path: Path) -> None:
+    """Ensure parent directory exists, creating it if necessary.
+
+    Creates the parent directory of the given path if it doesn't exist.
+    Uses mkdir with parents=True to create intermediate directories.
+
+    Args:
+        path: Path whose parent directory should be created
+    """
     if path.parent and not path.parent.exists():
         path.parent.mkdir(parents=True, exist_ok=True)
 
 
 def quote_path(path: Path) -> str:
-    # Use simple quoting suitable for preview text; subprocess will bypass shell
+    """Quote path for safe display in preview text.
+
+    Returns path as string for display purposes. Note that subprocess
+    calls bypass shell interpretation, so complex quoting is not needed.
+
+    Args:
+        path: Path to quote
+
+    Returns:
+        str: Quoted path string
+    """
     return str(path)
 
 
 def most_recent_file(paths: Iterable[Path]) -> Path | None:
+    """Find the most recently modified file from a collection.
+
+    Compares modification times of all files and returns the most recent.
+    Skips files that cannot be accessed or don't exist.
+
+    Args:
+        paths: Collection of file paths to check
+
+    Returns:
+        Path: Most recently modified file, or None if no accessible files
+    """
     latest: tuple[float, Path] | None = None
     for p in paths:
         try:
@@ -237,14 +299,24 @@ def most_recent_file(paths: Iterable[Path]) -> Path | None:
 
 
 def sanitize_filename(filename: str, max_length: int = 255) -> str:
-    """Sanitize filename to prevent security issues.
+    """Sanitize filename to prevent security issues and filesystem problems.
+
+    Removes or replaces dangerous characters, prevents path traversal,
+    handles reserved filenames, and ensures length limits.
 
     Args:
-        filename: Original filename
-        max_length: Maximum allowed length
+        filename: Original filename to sanitize
+        max_length: Maximum allowed filename length (default 255)
 
     Returns:
         str: Sanitized filename safe for filesystem use
+
+    Security features:
+        - Removes dangerous characters and sequences
+        - Prevents path traversal attempts
+        - Handles Windows reserved filenames
+        - Enforces length limits
+        - Ensures valid filename output
     """
     if not filename or not isinstance(filename, str):
         return "sanitized_file"
@@ -291,13 +363,13 @@ def sanitize_filename(filename: str, max_length: int = 255) -> str:
     if name_without_ext in reserved_names:
         sanitized = f"safe_{sanitized}"
 
-    # Truncate if too long
+    # Truncate if too long while preserving extension
     if len(sanitized) > max_length:
         name, ext = sanitized.rsplit(".", 1) if "." in sanitized else (sanitized, "")
         max_name_length = max_length - len(ext) - 1 if ext else max_length
         sanitized = name[:max_name_length] + ("." + ext if ext else "")
 
-    # Ensure we have something
+    # Ensure we have something valid
     if not sanitized:
         sanitized = "sanitized_file"
 
@@ -378,8 +450,11 @@ ALLOWED_FFMPEG_FLAGS = {
 def validate_ffmpeg_command(cmd: list[str]) -> bool:
     """Validate ffmpeg command arguments for security.
 
+    Comprehensive validation of ffmpeg command arguments to prevent
+    command injection, unauthorized operations, and security vulnerabilities.
+
     Args:
-        cmd: Command arguments list
+        cmd: Command arguments list (e.g., ["ffmpeg", "-i", "input.mp4", "-c:v", "libx264", "output.mp4"])
 
     Returns:
         bool: True if command is safe to execute
@@ -387,8 +462,9 @@ def validate_ffmpeg_command(cmd: list[str]) -> bool:
     Security checks:
         - Validates executable is ffmpeg
         - Checks all flags against allowlist
-        - Validates file paths
-        - Prevents command injection
+        - Validates file paths using is_safe_path
+        - Prevents command injection and shell metacharacters
+        - Blocks dangerous patterns and redirections
     """
     if not cmd or not isinstance(cmd, list):
         return False
@@ -397,7 +473,7 @@ def validate_ffmpeg_command(cmd: list[str]) -> bool:
     if not cmd[0] or cmd[0] != "ffmpeg":
         return False
 
-    # Check for dangerous patterns
+    # Check for dangerous patterns that could cause command injection
     cmd_str = " ".join(cmd)
     dangerous_patterns = [
         ";",
@@ -421,7 +497,7 @@ def validate_ffmpeg_command(cmd: list[str]) -> bool:
         if pattern in cmd_str:
             return False
 
-    # Validate flags
+    # Validate flags and arguments
     i = 1  # Skip 'ffmpeg'
     while i < len(cmd):
         arg = cmd[i]
@@ -449,12 +525,22 @@ def validate_ffmpeg_command(cmd: list[str]) -> bool:
 def sanitize_user_input(user_input: str, max_length: int = 1000) -> str:
     """Sanitize user input to prevent injection attacks.
 
+    Comprehensive sanitization of user input to prevent command injection,
+    shell metacharacter attacks, and other security vulnerabilities.
+
     Args:
         user_input: Raw user input string
-        max_length: Maximum allowed length
+        max_length: Maximum allowed length (default 1000)
 
     Returns:
         str: Sanitized input safe for processing
+
+    Security features:
+        - Removes control characters and dangerous sequences
+        - Blocks command injection patterns
+        - Enforces length limits
+        - Normalizes whitespace
+        - Prevents shell metacharacter attacks
     """
     if not user_input or not isinstance(user_input, str):
         return ""
@@ -475,7 +561,7 @@ def sanitize_user_input(user_input: str, max_length: int = 1000) -> str:
     for char in dangerous_chars:
         sanitized = sanitized.replace(char, " ")
 
-    # Remove dangerous command patterns
+    # Remove dangerous command patterns that could be used for injection
     dangerous_patterns = [
         r"\brm\s+",
         r"\bmv\s+",

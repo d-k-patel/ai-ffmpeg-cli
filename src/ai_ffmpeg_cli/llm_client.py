@@ -1,3 +1,22 @@
+"""LLM client for natural language to ffmpeg intent translation.
+
+This module provides the interface between natural language prompts and
+structured ffmpeg intents using Large Language Models (LLMs). It handles
+API communication, error handling, retry logic, and response validation.
+
+Key features:
+- OpenAI API integration with comprehensive error handling
+- Automatic retry with corrective prompts for parsing failures
+- Input sanitization and security logging
+- Mock responses for testing and development
+- Structured JSON response validation
+
+Security considerations:
+- API keys are never logged
+- User input is sanitized before processing
+- Error messages are sanitized to prevent information leakage
+"""
+
 from __future__ import annotations
 
 import json
@@ -24,15 +43,47 @@ SYSTEM_PROMPT = (
 
 
 class LLMProvider:
+    """Abstract base class for LLM providers.
+
+    Defines the interface for different LLM services. Implementations
+    should handle API communication, authentication, and response formatting.
+    """
     def complete(self, system: str, user: str, timeout: int) -> str:  # pragma: no cover - interface
+        """Complete a chat request with system and user messages.
+
+        Args:
+            system: System prompt defining the assistant's role
+            user: User message to process
+            timeout: Request timeout in seconds
+
+        Returns:
+            str: Raw response from the LLM
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses
+        """
         raise NotImplementedError
 
 
 class OpenAIProvider(LLMProvider):
+    """OpenAI API provider for LLM completions.
+
+    Handles communication with OpenAI's chat completion API, including
+    authentication, error handling, and response processing.
+    """
     def __init__(self, api_key: str, model: str) -> None:
+        """Initialize OpenAI provider with API credentials.
+
+        Args:
+            api_key: OpenAI API key for authentication
+            model: Model name to use for completions (e.g., gpt-4o, gpt-3.5-turbo)
+
+        Raises:
+            Exception: If client initialization fails
+        """
         from openai import OpenAI  # lazy import for testability
 
-        # Never log the actual API key
+        # Never log the actual API key - only model and status
         logger.debug(f"Initializing OpenAI provider with model: {model}")
 
         try:
@@ -45,7 +96,22 @@ class OpenAIProvider(LLMProvider):
             raise
 
     def complete(self, system: str, user: str, timeout: int) -> str:
-        """Complete chat request with error handling and retries."""
+        """Complete chat request with comprehensive error handling.
+
+        Makes a chat completion request to OpenAI with proper error handling
+        for authentication, rate limiting, timeouts, and API errors.
+
+        Args:
+            system: System prompt defining assistant behavior
+            user: User message to process
+            timeout: Request timeout in seconds
+
+        Returns:
+            str: JSON response from OpenAI
+
+        Raises:
+            ParseError: For authentication, rate limiting, timeout, or API errors
+        """
         try:
             logger.debug(f"Making OpenAI API request with model: {self.model}, timeout: {timeout}s")
 
@@ -55,8 +121,8 @@ class OpenAIProvider(LLMProvider):
                     {"role": "system", "content": system},
                     {"role": "user", "content": user},
                 ],
-                temperature=0,
-                response_format={"type": "json_object"},
+                temperature=0,  # Deterministic responses for consistent parsing
+                response_format={"type": "json_object"},  # Ensure JSON output
                 timeout=timeout,
             )
 
@@ -65,7 +131,7 @@ class OpenAIProvider(LLMProvider):
             return content
 
         except Exception as e:
-            # Import specific exception types for better handling
+            # Import specific exception types for better error handling
             try:
                 from openai import APIError
                 from openai import APITimeoutError
@@ -73,7 +139,7 @@ class OpenAIProvider(LLMProvider):
                 from openai import RateLimitError
 
                 if isinstance(e, AuthenticationError):
-                    # Authentication failed - raise proper error
+                    # Authentication failed - provide clear guidance
                     logger.error("OpenAI authentication failed - check your API key")
                     raise ParseError(
                         "OpenAI authentication failed. Please check your API key is correct "
@@ -104,7 +170,7 @@ class OpenAIProvider(LLMProvider):
                     ) from e
 
             except ImportError:
-                # Fallback for older openai versions
+                # Fallback for older openai versions without specific exception types
                 pass
 
             # Generic error handling for unknown exceptions
@@ -116,7 +182,18 @@ class OpenAIProvider(LLMProvider):
             ) from e
 
     def _get_mock_response(self, _system: str, user: str) -> str:
-        """Generate a mock response for testing purposes."""
+        """Generate a mock response for testing purposes.
+
+        Provides deterministic responses for common test scenarios without
+        requiring actual API calls. Used for development and testing.
+
+        Args:
+            _system: System prompt (unused in mock)
+            user: User message to generate mock response for
+
+        Returns:
+            str: JSON response matching FfmpegIntent schema
+        """
         import json
 
         # Parse the user input to understand the request
@@ -124,7 +201,7 @@ class OpenAIProvider(LLMProvider):
             user_data = json.loads(user)
             prompt = user_data.get("prompt", "").lower()
 
-            # Generate appropriate mock response based on the prompt
+            # Generate appropriate mock response based on the prompt content
             if "convert" in prompt and "720p" in prompt:
                 return json.dumps(
                     {
@@ -163,7 +240,7 @@ class OpenAIProvider(LLMProvider):
                     }
                 )
         except (json.JSONDecodeError, KeyError):
-            # Fallback response
+            # Fallback response if user input parsing fails
             return json.dumps(
                 {
                     "action": "convert",
@@ -175,7 +252,17 @@ class OpenAIProvider(LLMProvider):
 
 
 class LLMClient:
+    """High-level LLM client for natural language parsing.
+
+    Provides a unified interface for parsing natural language prompts into
+    structured ffmpeg intents, with retry logic and comprehensive error handling.
+    """
     def __init__(self, provider: LLMProvider) -> None:
+        """Initialize client with a specific LLM provider.
+
+        Args:
+            provider: LLM provider implementation (e.g., OpenAIProvider)
+        """
         self.provider = provider
 
     def parse(
@@ -183,18 +270,22 @@ class LLMClient:
     ) -> FfmpegIntent:
         """Parse natural language prompt into FfmpegIntent with retry logic.
 
+        Converts user natural language into structured ffmpeg intents using
+        the configured LLM provider. Includes automatic retry with corrective
+        prompts for parsing failures.
+
         Args:
             nl_prompt: Natural language prompt from user
-            context: File context information
-            timeout: Request timeout in seconds
+            context: File context information (available files, etc.)
+            timeout: Request timeout in seconds (defaults to 60)
 
         Returns:
-            FfmpegIntent: Parsed intent object
+            FfmpegIntent: Parsed and validated intent object
 
         Raises:
-            ParseError: If parsing fails after retry attempts
+            ParseError: If parsing fails after retry attempts, with detailed error guidance
         """
-        # Sanitize user input first
+        # Sanitize user input first to prevent injection attacks
         from .io_utils import sanitize_user_input
 
         sanitized_prompt = sanitize_user_input(nl_prompt)
@@ -204,12 +295,13 @@ class LLMClient:
                 "Empty or invalid prompt provided. Please provide a clear description of what you want to do."
             )
 
+        # Prepare payload with prompt and context for LLM
         user_payload = json.dumps({"prompt": sanitized_prompt, "context": context})
         effective_timeout = 60 if timeout is None else timeout
 
         logger.debug(f"Parsing prompt with timeout: {effective_timeout}s")
 
-        # First attempt
+        # First attempt with original prompt
         try:
             raw = self.provider.complete(SYSTEM_PROMPT, user_payload, timeout=effective_timeout)
             logger.debug(f"Received raw response: {len(raw)} chars")

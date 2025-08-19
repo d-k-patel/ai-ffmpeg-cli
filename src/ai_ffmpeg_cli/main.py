@@ -1,3 +1,19 @@
+"""Main CLI entry point for ai-ffmpeg-cli.
+
+This module provides the command-line interface for the AI-powered ffmpeg CLI tool.
+It handles both one-shot natural language processing and interactive sessions.
+
+Key features:
+- Natural language to ffmpeg command translation
+- Interactive command processing with confirmation
+- Basic ffmpeg command explanation
+- Configuration management and error handling
+
+Dependencies:
+- typer: CLI framework
+- rich: Enhanced terminal output
+"""
+
 from __future__ import annotations
 
 import typer
@@ -17,7 +33,14 @@ app = typer.Typer(add_completion=False, help="AI-powered ffmpeg CLI")
 
 
 def version_callback(value: bool) -> None:
-    """Print version and exit."""
+    """Print version and exit.
+
+    Args:
+        value: Whether version flag was provided (unused, handled by typer)
+
+    Raises:
+        typer.Exit: Always raised to exit after version display
+    """
     if value:
         rprint(f"aiclip version {__version__}")
         raise typer.Exit()
@@ -32,10 +55,32 @@ def _main_impl(
     timeout: int,
     verbose: bool,
 ) -> None:
-    """Initialize global options and optionally run one-shot prompt."""
+    """Initialize global options and optionally run one-shot prompt.
+
+    This is the core implementation function that handles both one-shot
+    and interactive modes. It sets up logging, loads configuration,
+    and processes natural language prompts.
+
+    Args:
+        ctx: Typer context object for subcommand handling
+        prompt: Natural language prompt for one-shot processing
+        yes: Whether to skip confirmation prompts
+        model: LLM model override for configuration
+        dry_run: Whether to preview commands without execution
+        timeout: LLM request timeout in seconds
+        verbose: Whether to enable verbose logging
+
+    Raises:
+        typer.Exit: On successful completion or error conditions
+        ConfigError: If configuration loading fails
+        ParseError: If natural language parsing fails
+        BuildError: If ffmpeg command building fails
+        ExecError: If command execution fails
+    """
     setup_logging(verbose)
     try:
         cfg = load_config()
+        # Apply command-line overrides to configuration
         if model:
             cfg.model = model
         if dry_run is not None:
@@ -45,7 +90,7 @@ def _main_impl(
         if ctx is not None:
             ctx.obj = {"config": cfg, "assume_yes": yes}
 
-        # One-shot if a prompt is passed to the top-level
+        # One-shot mode: process single prompt and exit
         if prompt is not None:
             try:
                 code = process_natural_language_prompt(prompt, cfg, yes)
@@ -73,11 +118,27 @@ def cli_main(
         False, "--version", callback=version_callback, help="Show version and exit"
     ),
 ) -> None:
+    """Main CLI entry point with global options.
+
+    Handles both direct invocation (one-shot mode) and subcommand routing.
+    When invoked without subcommands, processes natural language prompts.
+    When subcommands are used, sets up logging for subcommand execution.
+
+    Args:
+        ctx: Typer context for command routing
+        prompt: Optional natural language prompt for one-shot processing
+        yes: Skip confirmation prompts and overwrite files
+        model: Override default LLM model
+        dry_run: Preview commands without execution
+        timeout: LLM request timeout in seconds
+        verbose: Enable verbose logging output
+        _version: Version flag (handled by callback)
+    """
     if ctx.invoked_subcommand is None:
-        # Only run natural language processing if no subcommand is invoked
+        # Direct invocation: run natural language processing
         _main_impl(ctx, prompt, yes, model, dry_run, timeout, verbose)
     else:
-        # Set up logging for subcommands
+        # Subcommand mode: set up logging for subcommand execution
         setup_logging(verbose)
 
 
@@ -90,6 +151,20 @@ def main(
     timeout: int = 60,
     verbose: bool = False,
 ) -> None:
+    """Programmatic entry point for testing and library usage.
+
+    Provides the same functionality as CLI but with direct parameter passing.
+    Useful for testing, scripting, and programmatic integration.
+
+    Args:
+        ctx: Optional typer context (for subcommand compatibility)
+        prompt: Natural language prompt to process
+        yes: Skip confirmation prompts
+        model: LLM model override
+        dry_run: Preview mode without execution
+        timeout: LLM timeout in seconds
+        verbose: Enable verbose logging
+    """
     _main_impl(ctx, prompt, yes, model, dry_run, timeout, verbose)
 
 
@@ -98,9 +173,20 @@ def nl(
     ctx: typer.Context,
     prompt: str | None = typer.Argument(None, help="Natural language prompt"),
 ) -> None:
-    """Translate NL to ffmpeg, preview, confirm, and execute."""
+    """Translate NL to ffmpeg, preview, confirm, and execute.
+
+    This subcommand provides natural language to ffmpeg command translation.
+    It can run in one-shot mode (with prompt argument) or interactive mode.
+
+    Args:
+        ctx: Typer context containing configuration
+        prompt: Natural language prompt for one-shot processing
+
+    Raises:
+        typer.Exit: On completion or error conditions
+    """
     if ctx.obj is None:
-        # Initialize context if not already done
+        # Initialize context if not already done by main callback
         setup_logging(False)
         try:
             cfg = load_config()
@@ -113,7 +199,7 @@ def nl(
     assume_yes = ctx.obj["assume_yes"]
 
     if prompt is not None:
-        # One-shot mode
+        # One-shot mode: process single prompt and exit
         try:
             code = process_natural_language_prompt(prompt, config, assume_yes)
             raise typer.Exit(code)
@@ -121,7 +207,7 @@ def nl(
             rprint(f"[red]Error:[/red] {e}")
             raise typer.Exit(1) from e
     else:
-        # Interactive mode
+        # Interactive mode: start interactive session
         try:
             code = process_interactive_session(config, assume_yes)
             raise typer.Exit(code)
@@ -134,7 +220,18 @@ def nl(
 def explain_cmd(
     ctx: typer.Context,
 ) -> None:
-    """Explain what an ffmpeg command does."""
+    """Explain what an ffmpeg command does.
+
+    Provides a basic explanation of ffmpeg commands by parsing common
+    patterns and flags. This is a lightweight alternative to the AI-powered
+    explanation available in the 'nl' command.
+
+    Args:
+        ctx: Typer context containing command arguments
+
+    Raises:
+        typer.Exit: On completion or error conditions
+    """
     # Get the remaining arguments as the ffmpeg command
     if not ctx.args:
         rprint("Provide an ffmpeg command to explain.")
@@ -148,7 +245,7 @@ def explain_cmd(
         rprint("Usage: aiclip explain-cmd 'ffmpeg -i input.mp4 -c:v libx264 output.mp4'")
         raise typer.Exit(2)
 
-    # Basic command parsing and explanation
+    # Basic command validation - must start with 'ffmpeg'
     parts = ffmpeg_command.split()
     if not parts or parts[0] != "ffmpeg":
         rprint("[red]Error:[/red] Not a valid ffmpeg command. Commands should start with 'ffmpeg'.")
@@ -161,7 +258,7 @@ def explain_cmd(
     # Simple explanation based on common patterns
     explanation_parts = []
 
-    # Check for input files
+    # Extract input files (arguments following -i flags)
     input_files = []
     for i, part in enumerate(parts):
         if part == "-i" and i + 1 < len(parts):
@@ -170,13 +267,13 @@ def explain_cmd(
     if input_files:
         explanation_parts.append(f"📁 Input files: {', '.join(input_files)}")
 
-    # Check for output file (usually the last argument)
+    # Extract output file (usually the last non-flag argument)
     if len(parts) > 1:
         output_file = parts[-1]
         if not output_file.startswith("-"):
             explanation_parts.append(f"📤 Output file: {output_file}")
 
-    # Check for common operations
+    # Identify common operations based on flags and filters
     if "-vf" in ffmpeg_command or "-filter:v" in ffmpeg_command:
         explanation_parts.append("🎬 Video filtering applied")
 
