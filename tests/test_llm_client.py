@@ -367,6 +367,7 @@ class TestIntegrationScenarios:
             ("trim video.mp4", Action.trim),
         ],
     )
+    @pytest.mark.e2e
     def test_end_to_end_parsing(self, integration_client, prompt, expected_action):
         """Test end-to-end parsing with mocked responses."""
         result = integration_client.parse(prompt, {})

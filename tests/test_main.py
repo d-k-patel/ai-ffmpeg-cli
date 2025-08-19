@@ -41,6 +41,7 @@ class TestMainCLI:
 
     @patch("ai_ffmpeg_cli.main.process_natural_language_prompt")
     @patch("ai_ffmpeg_cli.main.load_config")
+    @pytest.mark.e2e
     def test_one_shot_mode_success(
         self,
         mock_load_config,
@@ -438,6 +439,7 @@ class TestMainCLIAdditional:
     """Additional tests for main CLI functionality."""
 
     @patch("ai_ffmpeg_cli.main.setup_logging")
+    @pytest.mark.e2e
     def test_main_with_model_override(self, mock_setup):
         """Test main function with model override."""
         import typer
