@@ -137,6 +137,22 @@ aiclip --timeout 120 "complex processing task"
 aiclip --verbose "your command"
 ```
 
+### Subcommands and option placement
+
+You can also use the explicit `nl` subcommand. Put global options before the subcommand:
+
+```bash
+aiclip --yes nl "thumbnail at 10s from test.mp4"
+aiclip --dry-run --model gpt-4o-mini nl "compress input.mp4"
+```
+
+Do not invoke the binary twice:
+
+```bash
+# Incorrect
+aiclip aiclip --yes nl "..."
+```
+
 ## 🔧 Configuration
 
 aiclip uses environment variables and `.env` files for configuration:

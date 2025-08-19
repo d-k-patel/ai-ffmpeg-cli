@@ -26,17 +26,14 @@ def _setup_logging(verbose: bool) -> None:
     logging.basicConfig(level=level, format="%(levelname)s: %(message)s")
 
 
-@app.callback()
-def main(
-    ctx: typer.Context | None = None,
-    prompt: str | None = typer.Argument(
-        None, help="Natural language prompt; if provided, runs once and exits"
-    ),
-    yes: bool = typer.Option(False, "--yes/--no-yes", help="Skip confirmation and overwrite"),
-    model: str | None = typer.Option(None, "--model", help="LLM model override"),
-    dry_run: bool = typer.Option(None, "--dry-run/--no-dry-run", help="Preview only"),
-    timeout: int = typer.Option(60, "--timeout", help="LLM timeout seconds"),
-    verbose: bool = typer.Option(False, "--verbose", help="Verbose logging"),
+def _main_impl(
+    ctx: typer.Context | None,
+    prompt: str | None,
+    yes: bool,
+    model: str | None,
+    dry_run: bool | None,
+    timeout: int,
+    verbose: bool,
 ) -> None:
     """Initialize global options and optionally run one-shot prompt."""
     _setup_logging(verbose)
@@ -82,6 +79,33 @@ def main(
     except ConfigError as e:
         rprint(f"[red]Error:[/red] {e}")
         raise typer.Exit(1) from e
+
+
+@app.callback()
+def cli_main(
+    ctx: typer.Context,
+    prompt: str | None = typer.Argument(
+        None, help="Natural language prompt; if provided, runs once and exits"
+    ),
+    yes: bool = typer.Option(False, "--yes/--no-yes", help="Skip confirmation and overwrite"),
+    model: str | None = typer.Option(None, "--model", help="LLM model override"),
+    dry_run: bool = typer.Option(None, "--dry-run/--no-dry-run", help="Preview only"),
+    timeout: int = typer.Option(60, "--timeout", help="LLM timeout seconds"),
+    verbose: bool = typer.Option(False, "--verbose", help="Verbose logging"),
+) -> None:
+    _main_impl(ctx, prompt, yes, model, dry_run, timeout, verbose)
+
+
+def main(
+    ctx: typer.Context | None = None,
+    prompt: str | None = None,
+    yes: bool = False,
+    model: str | None = None,
+    dry_run: bool | None = None,
+    timeout: int = 60,
+    verbose: bool = False,
+) -> None:
+    _main_impl(ctx, prompt, yes, model, dry_run, timeout, verbose)
 
 
 def _make_llm(cfg: AppConfig) -> LLMClient:
