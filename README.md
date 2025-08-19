@@ -1,13 +1,14 @@
-# 🎬 aiclip
+# 🎬 ai-ffmpeg-cli
 
 [![PyPI version](https://badge.fury.io/py/ai-ffmpeg-cli.svg)](https://badge.fury.io/py/ai-ffmpeg-cli)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![codecov](https://codecov.io/github/d-k-patel/ai-ffmpeg-cli/graph/badge.svg?token=Y1DVR6RWK2)](https://codecov.io/github/d-k-patel/ai-ffmpeg-cli)
-[![Tests](https://github.com/d-k-patel/ai-ffmpeg-cli/workflows/Tests/badge.svg)](https://github.com/d-k-patel/ai-ffmpeg-cli/actions)
-[![Code Quality](https://github.com/d-k-patel/ai-ffmpeg-cli/workflows/Code%20Quality/badge.svg)](https://github.com/d-k-patel/ai-ffmpeg-cli/actions)
+[![CI/CD Pipeline](https://github.com/d-k-patel/ai-ffmpeg-cli/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/d-k-patel/ai-ffmpeg-cli/actions)
 
 > **Stop Googling ffmpeg commands. Just describe what you want.**
+
+![aiclip preview](assets/preview.png)
 
 **aiclip** is an AI-powered CLI that translates natural language into safe, previewable `ffmpeg` commands. Built for developers, content creators, and anyone who works with media files but doesn't want to memorize complex syntax.
 
@@ -36,6 +37,9 @@ aiclip "convert input.mp4 to 720p with good quality"
 ```bash
 # Install from PyPI
 pip install ai-ffmpeg-cli
+
+# Use the 'aiclip' command (CLI name is different from package name)
+aiclip "your command here"
 
 # Or with Homebrew (coming soon)
 brew install aiclip
@@ -333,7 +337,7 @@ make all
 
 ## 📅 Release Information
 
-**Current Version**: 0.2.0  
+**Current Version**: 0.2.1  
 **Release Date**: August 19, 2025  
 **Python Support**: 3.10+  
 **License**: MIT
