@@ -96,7 +96,6 @@ def run(
             raise ExecError(
                 f"Executable not found: {ffmpeg_exec}. Ensure it is installed and on PATH."
             )
-        cmd = [resolved] + cmd[1:]
         try:
             result = subprocess.run(cmd, check=True)  # nosec B603: fixed binary, no shell, args vetted
             if result.returncode != 0:

@@ -22,7 +22,7 @@ def _ffprobe_duration(path: Path) -> float | None:
         # Call ffprobe via absolute path, pass filename as a separate argument, no shell
         result = subprocess.run(  # nosec B603: command is fixed and arguments are not executed via shell
             [
-                ffprobe_path,
+                "ffprobe",
                 "-v",
                 "error",
                 "-show_entries",
