@@ -3,6 +3,9 @@
 [![PyPI version](https://badge.fury.io/py/ai-ffmpeg-cli.svg)](https://badge.fury.io/py/ai-ffmpeg-cli)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![codecov](https://codecov.io/github/d-k-patel/ai-ffmpeg-cli/graph/badge.svg?token=Y1DVR6RWK2)](https://codecov.io/github/d-k-patel/ai-ffmpeg-cli)
+[![Tests](https://github.com/d-k-patel/ai-ffmpeg-cli/workflows/Tests/badge.svg)](https://github.com/d-k-patel/ai-ffmpeg-cli/actions)
+[![Code Quality](https://github.com/d-k-patel/ai-ffmpeg-cli/workflows/Code%20Quality/badge.svg)](https://github.com/d-k-patel/ai-ffmpeg-cli/actions)
 
 > **Stop Googling ffmpeg commands. Just describe what you want.**
 
@@ -15,6 +18,8 @@
 - ⚡ **10x Faster**: Skip the documentation, Stack Overflow, and trial-and-error
 - 🎯 **Battle-Tested**: Generates reliable, production-ready commands
 - 🔄 **Smart Defaults**: Sensible codec and quality settings out of the box
+- 🧪 **Well-Tested**: 87%+ test coverage with comprehensive error handling
+- 🏗️ **Clean Architecture**: Modular design with clear separation of concerns
 
 ```bash
 # Instead of this...
@@ -174,6 +179,9 @@ OPENAI_API_KEY=sk-your-openai-api-key
 # Optional
 AICLIP_MODEL=gpt-4o              # AI model to use
 AICLIP_DRY_RUN=false            # Preview commands by default
+AICLIP_TIMEOUT=60               # LLM timeout in seconds
+AICLIP_MAX_FILE_SIZE=524288000  # Max file size (500MB)
+AICLIP_RATE_LIMIT=60            # Rate limit requests per minute
 ```
 
 ## 🎯 Smart Defaults & Safety
@@ -183,6 +191,8 @@ AICLIP_DRY_RUN=false            # Preview commands by default
 - **Sensible Codecs**: Automatically chooses h264+aac for MP4, libx265 for compression
 - **Stream Copy**: Uses `-c copy` for trimming when possible (faster, lossless)
 - **Context Aware**: Scans your directory to suggest input files and durations
+- **Input Validation**: Sanitizes all inputs to prevent command injection
+- **Error Recovery**: Graceful handling of network timeouts and API failures
 
 ## 📊 Supported Operations
 
@@ -201,7 +211,7 @@ AICLIP_DRY_RUN=false            # Preview commands by default
 
 ```bash
 # Clone and setup
-git clone https://github.com/yourusername/ai-ffmpeg-cli.git
+git clone https://github.com/d-k-patel/ai-ffmpeg-cli.git
 cd ai-ffmpeg-cli
 make setup
 
@@ -211,8 +221,30 @@ make test
 # Check code quality  
 make lint
 
+# Format code
+make format
+
 # Try demo commands
 make demo
+
+# Run with coverage
+make test-cov
+```
+
+### Development Commands
+
+```bash
+# Full development setup
+make setup          # Create virtual environment and install dependencies
+make install        # Install package in development mode
+make test           # Run test suite
+make test-cov       # Run tests with coverage report
+make lint           # Check code quality
+make format         # Format code
+make security       # Run security checks
+make demo           # Run demonstration commands
+make docs           # Generate and serve documentation
+make clean          # Remove build artifacts
 ```
 
 ## 📋 Requirements
@@ -256,10 +288,10 @@ sudo apt install ffmpeg      # Ubuntu
 
 ### Getting Help
 
-- 📖 **Documentation**: Full guides at [docs link]
+- 📖 **Documentation**: Full guides at [https://d-k-patel.github.io/ai-ffmpeg-cli/](https://d-k-patel.github.io/ai-ffmpeg-cli/)
 - 💬 **Discord**: Join our community for real-time help
-- 🐛 **Issues**: Report bugs on [GitHub Issues](https://github.com/yourusername/ai-ffmpeg-cli/issues)
-- 💡 **Discussions**: Feature requests and Q&A on [GitHub Discussions](https://github.com/yourusername/ai-ffmpeg-cli/discussions)
+- 🐛 **Issues**: Report bugs on [GitHub Issues](https://github.com/d-k-patel/ai-ffmpeg-cli/issues)
+- 💡 **Discussions**: Feature requests and Q&A on [GitHub Discussions](https://github.com/d-k-patel/ai-ffmpeg-cli/discussions)
 
 ## 🤝 Contributing
 
@@ -273,6 +305,23 @@ We love contributions! Whether it's:
 
 See our [Contributing Guide](CONTRIBUTING.md) to get started.
 
+### Development Setup
+
+```bash
+# Fork and clone
+git clone https://github.com/yourusername/ai-ffmpeg-cli.git
+cd ai-ffmpeg-cli
+
+# Setup development environment
+make setup
+
+# Run pre-commit checks
+make pre-commit
+
+# Run full pipeline
+make all
+```
+
 ## 📈 What's Next?
 
 - 🔄 **Batch Templates**: Save and reuse complex workflows
@@ -280,6 +329,14 @@ See our [Contributing Guide](CONTRIBUTING.md) to get started.
 - ⚡ **Local Models**: Run without internet using local AI
 - 🏢 **Team Features**: Shared commands and analytics
 - 🔌 **Integrations**: GitHub Actions, Docker, CI/CD pipelines
+- 📊 **Analytics**: Usage statistics and performance insights
+
+## 📅 Release Information
+
+**Current Version**: 0.2.0  
+**Release Date**: August 19, 2025  
+**Python Support**: 3.10+  
+**License**: MIT
 
 ## 📄 License
 

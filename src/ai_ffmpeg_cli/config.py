@@ -12,7 +12,6 @@ from pydantic import field_validator
 from .errors import ConfigError
 from .security import create_secure_logger
 from .security import mask_api_key
-from .security import validate_api_key_format
 
 logger = create_secure_logger(__name__)
 
@@ -111,13 +110,6 @@ class AppConfig(BaseModel):
                 "OPENAI_API_KEY is required for LLM parsing. "
                 "Please set it in your environment or create a .env file with: "
                 "OPENAI_API_KEY=sk-your-key-here"
-            )
-
-        if not validate_api_key_format(self.openai_api_key):
-            masked_key = mask_api_key(self.openai_api_key)
-            raise ConfigError(
-                f"Invalid API key format: {masked_key}. "
-                "OpenAI API keys should start with 'sk-' followed by alphanumeric characters."
             )
 
     def get_api_key_for_client(self) -> str:

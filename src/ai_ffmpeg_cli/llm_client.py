@@ -73,11 +73,12 @@ class OpenAIProvider(LLMProvider):
                 from openai import RateLimitError
 
                 if isinstance(e, AuthenticationError):
-                    # Never log the actual API key in authentication errors
-                    logger.error("OpenAI authentication failed - check API key format and validity")
+                    # Authentication failed - raise proper error
+                    logger.error("OpenAI authentication failed - check your API key")
                     raise ParseError(
-                        "OpenAI authentication failed. Please verify your API key is correct and active. "
-                        "Get a valid key from https://platform.openai.com/api-keys"
+                        "OpenAI authentication failed. Please check your API key is correct "
+                        "and has sufficient credits. Set OPENAI_API_KEY environment variable "
+                        "or use --model to specify a different model."
                     ) from e
 
                 elif isinstance(e, RateLimitError):
@@ -113,6 +114,64 @@ class OpenAIProvider(LLMProvider):
                 f"Failed to get response from OpenAI: {sanitized_error}. "
                 "Please check your internet connection and try again."
             ) from e
+
+    def _get_mock_response(self, _system: str, user: str) -> str:
+        """Generate a mock response for testing purposes."""
+        import json
+
+        # Parse the user input to understand the request
+        try:
+            user_data = json.loads(user)
+            prompt = user_data.get("prompt", "").lower()
+
+            # Generate appropriate mock response based on the prompt
+            if "convert" in prompt and "720p" in prompt:
+                return json.dumps(
+                    {
+                        "action": "convert",
+                        "inputs": ["test.mp4"],
+                        "scale": "1280:720",
+                        "video_codec": "libx264",
+                        "audio_codec": "aac",
+                    }
+                )
+            elif "extract" in prompt and "audio" in prompt:
+                return json.dumps({"action": "extract_audio", "inputs": ["test.mp4"]})
+            elif "trim" in prompt:
+                return json.dumps(
+                    {
+                        "action": "trim",
+                        "inputs": ["test.mp4"],
+                        "start": "00:00:00",
+                        "duration": 30.0,
+                    }
+                )
+            elif "thumbnail" in prompt:
+                return json.dumps(
+                    {"action": "thumbnail", "inputs": ["test.mp4"], "start": "00:00:10"}
+                )
+            elif "compress" in prompt:
+                return json.dumps({"action": "compress", "inputs": ["test.mp4"], "crf": 28})
+            else:
+                # Default response for unknown requests
+                return json.dumps(
+                    {
+                        "action": "convert",
+                        "inputs": ["test.mp4"],
+                        "video_codec": "libx264",
+                        "audio_codec": "aac",
+                    }
+                )
+        except (json.JSONDecodeError, KeyError):
+            # Fallback response
+            return json.dumps(
+                {
+                    "action": "convert",
+                    "inputs": ["test.mp4"],
+                    "video_codec": "libx264",
+                    "audio_codec": "aac",
+                }
+            )
 
 
 class LLMClient:

@@ -2,9 +2,14 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
+*.pyo
+*.pyd
 
 # C extensions
 *.so
+*.dll
+*.dylib
 
 # Distribution / packaging
 .Python
@@ -49,6 +54,9 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 test-results/
+
+# Benchmark results
+.pytest-benchmark/
 
 # Translations
 *.mo
@@ -129,6 +137,93 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# Pre-commit hooks
+.pre-commit-config.yaml.bak
+
+# Security reports
+.bandit
+.safety
+
+# Performance profiling
+*.prof
+*.profile
+
+# Memory profiling
+*.mem
+
+# Debug files
+*.debug
+
+# Local development overrides
+local.py
+local_settings.py
+settings_local.py
+config.local.*
+settings.local.*
+*.local.*
+
+# API keys and sensitive data
+api_keys.txt
+credentials.json
+service_account.json
+*api*key*
+*secret*
+*credential*
+*.key
+*.pem
+*.p12
+*.pfx
+
+# AI/ML model files
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+*.onnx
+*.pb
+*.tflite
+*.pt
+*.pth
+*.safetensors
+models/
+checkpoints/
+
+# Test data and fixtures
+test_data/
+fixtures/
+sample_files/
+test_*output*
+*_test_*
+test_results*
+
+# Documentation builds
+docs/build/
+docs/_build/
+site/
+
+# Temporary directories
+tmp/
+temp/
+.tmp/
+.temp/
+
+# Archive files
+*.tar
+*.tar.gz
+*.tar.bz2
+*.zip
+*.rar
+*.7z
+
+# Compiled documentation
+*.pdf
+*.epub
+*.mobi
+
+# Development tools
+.editorconfig.bak
+.gitattributes.bak
+
 # IDEs and editors
 .vscode/
 .idea/
@@ -145,7 +240,7 @@ cython_debug/
 ehthumbs.db
 Thumbs.db
 
-# Project-specific files
+# Project-specific media files
 *.mp4
 *.mov
 *.avi
@@ -198,7 +293,6 @@ docker-compose.override.yml
 
 # Secrets and configs
 secrets.json
-config.local.*
 .secrets
 .env.*
 .envrc

@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ai-ffmpeg-cli"
-version = "0.1.4"
-description = "AI-powered CLI that translates natural language to safe ffmpeg commands"
+version = "0.2.0"
+description = "AI-powered CLI that translates natural language to safe, previewable ffmpeg commands with comprehensive testing and clean architecture"
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
@@ -24,7 +24,9 @@ keywords = [
     "natural-language",
     "media-processing",
     "conversion",
-    "automation"
+    "automation",
+    "testing",
+    "type-safe"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -43,7 +45,9 @@ classifiers = [
     "Topic :: Multimedia :: Video :: Conversion",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: System Shells",
-    "Topic :: Utilities"
+    "Topic :: Utilities",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Quality Assurance"
 ]
 
 dependencies = [
@@ -60,6 +64,9 @@ dev = [
     "pytest>=7.0.0",
     "pytest-mock>=3.10.0",
     "pytest-cov>=6.0.0",
+    "pytest-benchmark>=4.0.0",
+    "pytest-timeout>=2.1.0",
+    "psutil>=5.9.0",
     "ruff>=0.5.0",
     "mypy>=1.5.0",
     "pre-commit>=3.0.0"
@@ -67,7 +74,10 @@ dev = [
 test = [
     "pytest>=7.0.0",
     "pytest-mock>=3.10.0", 
-    "pytest-cov>=4.0.0"
+    "pytest-cov>=4.0.0",
+    "pytest-benchmark>=4.0.0",
+    "pytest-timeout>=2.1.0",
+    "psutil>=5.9.0"
 ]
 docs = [
     "mkdocs>=1.5.0",
@@ -79,6 +89,9 @@ all = [
     "pytest>=7.0.0",
     "pytest-mock>=3.10.0",
     "pytest-cov>=6.0.0",
+    "pytest-benchmark>=4.0.0",
+    "pytest-timeout>=2.1.0",
+    "psutil>=5.9.0",
     "ruff>=0.5.0",
     "mypy>=1.5.0",
     "pre-commit>=3.0.0",
@@ -187,7 +200,9 @@ addopts = [
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests"
+    "unit: marks tests as unit tests",
+    "e2e: marks tests as end-to-end tests",
+    "benchmark: marks tests as performance benchmarks"
 ]
 
 # Coverage configuration
