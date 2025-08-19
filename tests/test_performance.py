@@ -337,9 +337,9 @@ class TestLoadTesting:
 
         # Should complete within reasonable time (adjusted for environment)
         execution_time = end_time - start_time
-        assert (
-            execution_time < max_execution_time
-        ), f"Test took too long: {execution_time:.2f} seconds"
+        assert execution_time < max_execution_time, (
+            f"Test took too long: {execution_time:.2f} seconds"
+        )
 
         # Average CPU usage should be reasonable
         avg_cpu = sum(cpu_percentages) / len(cpu_percentages)
