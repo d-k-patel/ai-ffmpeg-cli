@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import logging
 import re
+from typing import TYPE_CHECKING
 from typing import Any
+
+if TYPE_CHECKING:
+    from pydantic_core.core_schema import AfterValidatorFunctionSchema
 
 logger = logging.getLogger(__name__)
 
@@ -161,7 +165,9 @@ class SecretStr:
         return validate_api_key_format(self._value)
 
     @classmethod
-    def __get_pydantic_core_schema__(cls, source_type, handler):
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: Any
+    ) -> AfterValidatorFunctionSchema:
         """Pydantic v2 compatibility."""
         from pydantic_core import core_schema
 
