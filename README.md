@@ -3,7 +3,6 @@
 [![PyPI version](https://badge.fury.io/py/ai-ffmpeg-cli.svg)](https://badge.fury.io/py/ai-ffmpeg-cli)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Downloads](https://pepy.tech/badge/ai-ffmpeg-cli)](https://pepy.tech/project/ai-ffmpeg-cli)
 
 > **Stop Googling ffmpeg commands. Just describe what you want.**
 

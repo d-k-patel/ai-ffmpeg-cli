@@ -20,7 +20,7 @@ YELLOW=\033[1;33m
 RED=\033[0;31m
 NC=\033[0m # No Color
 
-.PHONY: help setup install test lint format clean run demo build publish release docker docs
+.PHONY: help setup install test lint format clean run demo build publish release docker docs pypi-guard testpypi-guard
 
 # Default target
 help:
@@ -142,14 +142,14 @@ build: clean
 	$(BUILD)
 	@echo "$(GREEN)Build complete! Check dist/ directory.$(NC)"
 
-test-pub: build
+test-pub: build testpypi-guard
 	@echo "$(GREEN)Publishing to TestPyPI...$(NC)"
 	$(PIP) install --upgrade twine
 	$(TWINE) upload --repository testpypi dist/*
 	@echo "$(GREEN)Published to TestPyPI!$(NC)"
 	@echo "Test with: pip install -i https://test.pypi.org/simple/ ai-ffmpeg-cli"
 
-publish: build
+publish: build pypi-guard
 	@echo "$(YELLOW)Publishing to PyPI (PRODUCTION)...$(NC)"
 	@echo "$(RED)This will publish to the real PyPI! Press Enter to continue or Ctrl+C to cancel.$(NC)"
 	@read
@@ -208,11 +208,22 @@ release: version-check
 	
 	@echo "$(GREEN)Release $(VERSION) complete! 🚀$(NC)"
 
+# Guards to prevent publishing an existing version
+pypi-guard:
+	@echo "$(YELLOW)Checking PyPI for existing version...$(NC)"
+	@$(PY) -c "import json,sys,re,urllib.request; t=open('pyproject.toml',encoding='utf-8').read(); m=re.search(r'^version\\s*=\\s*\\\"([^\\\"]+)\\\"', t, re.M); v=m.group(1) if m else None; data=json.load(urllib.request.urlopen('https://pypi.org/pypi/ai-ffmpeg-cli/json', timeout=10)); exists=(v in data.get('releases', {})); (print('Failed to determine version from pyproject.toml', file=sys.stderr) or sys.exit(1)) if not v else None; (print(f'Version {v} already exists on PyPI. Bump the version before publishing.', file=sys.stderr) or sys.exit(2)) if exists else print(f'Version {v} not on PyPI. Safe to publish.')"
+
+testpypi-guard:
+	@echo "$(YELLOW)Checking TestPyPI for existing version...$(NC)"
+	@$(PY) -c "import json,sys,re,urllib.request; t=open('pyproject.toml',encoding='utf-8').read(); m=re.search(r'^version\\s*=\\s*\\\"([^\\\"]+)\\\"', t, re.M); v=m.group(1) if m else None; data=json.load(urllib.request.urlopen('https://test.pypi.org/pypi/ai-ffmpeg-cli/json', timeout=10)); exists=(v in data.get('releases', {})); (print('Failed to determine version from pyproject.toml', file=sys.stderr) or sys.exit(1)) if not v else None; (print(f'Version {v} already exists on TestPyPI. Bump the version or use a pre-release tag before test publish.', file=sys.stderr) or sys.exit(2)) if exists else print(f'Version {v} not on TestPyPI. Safe to test publish.')"
+
 # Documentation
 docs:
 	@echo "$(GREEN)Generating documentation...$(NC)"
-	$(PIP) install mkdocs mkdocs-material
-	mkdocs serve
+	# Ensure docs dependencies are installed
+	$(PIP) install -e .[docs]
+	@echo "$(GREEN)Starting MkDocs server...$(NC)"
+	$(VENV)/bin/mkdocs serve
 	@echo "$(GREEN)Documentation served at http://127.0.0.1:8000$(NC)"
 
 # Docker

@@ -1,0 +1,22 @@
+site_name: aiclip
+site_description: AI-powered CLI that translates natural language to safe ffmpeg commands
+repo_url: https://github.com/d-k-patel/ai-ffmpeg-cli
+site_url: https://d-k-patel.github.io/ai-ffmpeg-cli/
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - content.code.copy
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
+plugins:
+  - search
+  - mermaid2
+nav:
+  - Home: index.md
+  - Usage: usage.md
+  - Development: development.md
