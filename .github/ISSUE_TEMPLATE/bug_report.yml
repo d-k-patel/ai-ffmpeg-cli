@@ -1,0 +1,110 @@
+name: 🐛 Bug Report
+description: Report a bug or issue with aiclip
+title: "[Bug] "
+labels: ["bug", "needs-triage"]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Thanks for reporting a bug! Please fill out the sections below to help us fix it quickly.
+
+    - type: textarea
+      id: description
+      attributes:
+          label: Bug Description
+          description: A clear description of what the bug is
+          placeholder: Describe the issue you're experiencing...
+      validations:
+          required: true
+
+    - type: textarea
+      id: steps
+      attributes:
+          label: Steps to Reproduce
+          description: Steps to reproduce the behavior
+          placeholder: |
+              1. Run command '...'
+              2. See error
+          value: |
+              1. 
+              2. 
+              3.
+      validations:
+          required: true
+
+    - type: textarea
+      id: expected
+      attributes:
+          label: Expected Behavior
+          description: What you expected to happen
+          placeholder: Describe what should have happened...
+      validations:
+          required: true
+
+    - type: textarea
+      id: actual
+      attributes:
+          label: Actual Behavior
+          description: What actually happened instead
+          placeholder: Describe what actually happened...
+      validations:
+          required: true
+
+    - type: textarea
+      id: command
+      attributes:
+          label: Command Used
+          description: The exact aiclip command that caused the issue
+          placeholder: aiclip "your command here"
+          render: bash
+
+    - type: textarea
+      id: error
+      attributes:
+          label: Error Output
+          description: Full error message or output (if any)
+          render: text
+
+    - type: dropdown
+      id: os
+      attributes:
+          label: Operating System
+          options:
+              - macOS
+              - Ubuntu/Linux
+              - Windows
+              - Other (please specify in additional context)
+      validations:
+          required: true
+
+    - type: input
+      id: python-version
+      attributes:
+          label: Python Version
+          description: Output of `python --version`
+          placeholder: "Python 3.11.5"
+      validations:
+          required: true
+
+    - type: input
+      id: aiclip-version
+      attributes:
+          label: aiclip Version
+          description: Output of `aiclip --version` or `pip show ai-ffmpeg-cli`
+          placeholder: "0.1.0"
+      validations:
+          required: true
+
+    - type: input
+      id: ffmpeg-version
+      attributes:
+          label: ffmpeg Version
+          description: Output of `ffmpeg -version` (first line)
+          placeholder: "ffmpeg version 4.4.2"
+
+    - type: textarea
+      id: additional
+      attributes:
+          label: Additional Context
+          description: Any other context, screenshots, or information that might help
+          placeholder: Add any other context about the problem here...
