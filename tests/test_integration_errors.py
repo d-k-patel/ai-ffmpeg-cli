@@ -62,12 +62,12 @@ class TestIntegrationErrors:
     def test_file_permission_errors(self):
         """Test handling of file permission errors."""
         import platform
-        
+
         if platform.system() == "Windows":
             # On Windows, try to write to a system directory that requires admin privileges
             system_dir = Path("C:/Windows/System32")
             test_file = system_dir / "test_write_permission.mp4"
-            
+
             # This should fail due to permission error on Windows
             with pytest.raises((PermissionError, OSError)):
                 test_file.write_bytes(b"fake video data")
