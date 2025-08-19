@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import shutil
-import subprocess
+import subprocess  # nosec B404: subprocess is used safely with explicit args and no shell
 from pathlib import Path
 
 from .io_utils import most_recent_file
@@ -15,12 +15,14 @@ MEDIA_EXTS = {
 
 
 def _ffprobe_duration(path: Path) -> float | None:
-    if shutil.which("ffprobe") is None:
+    ffprobe_path = shutil.which("ffprobe")
+    if ffprobe_path is None:
         return None
     try:
-        result = subprocess.run(
+        # Call ffprobe via absolute path, pass filename as a separate argument, no shell
+        result = subprocess.run(  # nosec B603: command is fixed and arguments are not executed via shell
             [
-                "ffprobe",
+                ffprobe_path,
                 "-v",
                 "error",
                 "-show_entries",

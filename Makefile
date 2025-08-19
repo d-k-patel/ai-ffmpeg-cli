@@ -90,7 +90,12 @@ security:
 	@echo "$(GREEN)Running security checks...$(NC)"
 	@test -f $(SAFETY) || $(PIP) install safety
 	@test -f $(BANDIT) || $(PIP) install bandit
-	$(SAFETY) check
+	@if [ -n "$$SAFETY_API_KEY" ]; then \
+		$(SAFETY) scan --key $$SAFETY_API_KEY; \
+	else \
+		echo "$(YELLOW)SAFETY_API_KEY not set; falling back to 'safety check' (deprecated).$(NC)"; \
+		$(SAFETY) check; \
+	fi
 	$(BANDIT) -r src/
 	@echo "$(GREEN)Security checks complete!$(NC)"
 

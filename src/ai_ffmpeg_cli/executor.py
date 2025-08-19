@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import logging
-import subprocess
+import shutil
+import subprocess  # nosec B404: subprocess used with explicit list args, no shell
 from pathlib import Path
 
 from rich.console import Console
@@ -86,8 +87,20 @@ def run(
         return 1
 
     for cmd in commands:
+        # Validate executable exists to avoid PATH surprises
+        if not cmd:
+            raise ExecError("Empty command received for execution.")
+        ffmpeg_exec = cmd[0]
+        resolved = shutil.which(ffmpeg_exec)
+        if resolved is None:
+            raise ExecError(
+                f"Executable not found: {ffmpeg_exec}. Ensure it is installed and on PATH."
+            )
+        cmd = [resolved] + cmd[1:]
         try:
-            result = subprocess.run(cmd, check=True)
+            result = subprocess.run(
+                cmd, check=True
+            )  # nosec B603: fixed binary, no shell, args vetted
             if result.returncode != 0:
                 raise ExecError(
                     f"ffmpeg command failed with exit code {result.returncode}. "
