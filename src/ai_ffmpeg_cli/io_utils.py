@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import glob
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -22,7 +22,7 @@ def expand_globs(patterns: Iterable[str]) -> list[Path]:
     return unique
 
 
-def is_safe_path(path: Path) -> bool:
+def is_safe_path(path: object) -> bool:
     # Guard against empty or root paths; avoid clobbering directories
     try:
         s = str(path)

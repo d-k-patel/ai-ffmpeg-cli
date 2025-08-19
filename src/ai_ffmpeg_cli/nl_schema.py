@@ -58,7 +58,7 @@ class FfmpegIntent(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _coerce_lists(cls, values):  # type: ignore[override]
+    def _coerce_lists(cls, values: object) -> object:
         if not isinstance(values, dict):
             return values
         # inputs: allow scalar -> [scalar]
