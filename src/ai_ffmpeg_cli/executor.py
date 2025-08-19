@@ -87,14 +87,29 @@ def run(
         return 1
 
     for cmd in commands:
-        # Validate executable exists to avoid PATH surprises
+        # Validate command is not empty
         if not cmd:
             raise ExecError("Empty command received for execution.")
+
+        # Validate executable exists to avoid PATH surprises
         ffmpeg_exec = cmd[0]
         resolved = shutil.which(ffmpeg_exec)
         if resolved is None:
             raise ExecError(
                 f"Executable not found: {ffmpeg_exec}. Ensure it is installed and on PATH."
+            )
+
+        # Final security validation of the command
+        from .io_utils import validate_ffmpeg_command
+
+        if not validate_ffmpeg_command(cmd):
+            logger.error(f"Command failed security validation: {' '.join(cmd[:3])}...")
+            raise ExecError(
+                "Command failed security validation. This could be due to: "
+                "(1) unsafe file paths or arguments, "
+                "(2) unsupported ffmpeg flags, "
+                "or (3) potential security risks. "
+                "Please check your input and try a simpler operation."
             )
         try:
             result = subprocess.run(cmd, check=True)  # nosec B603: fixed binary, no shell, args vetted

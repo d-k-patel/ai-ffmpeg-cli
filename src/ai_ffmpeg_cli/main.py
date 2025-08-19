@@ -50,32 +50,40 @@ def _main_impl(
 
         # One-shot if a prompt is passed to the top-level
         invoked_none = (ctx is None) or (ctx.invoked_subcommand is None)
-        if prompt is not None and invoked_none:
-            try:
-                context = scan()
-                client = _make_llm(cfg)
-                intent = client.parse(prompt, context, timeout=cfg.timeout_seconds)
-                plan = route_intent(intent)
-                commands = build_commands(plan, assume_yes=yes)
-                from .executor import preview
-                from .executor import run
+        if invoked_none:
+            if prompt is not None:
+                try:
+                    context = scan()
+                    client = _make_llm(cfg)
+                    intent = client.parse(prompt, context, timeout=cfg.timeout_seconds)
+                    plan = route_intent(intent)
+                    commands = build_commands(plan, assume_yes=yes)
+                    from .executor import preview
+                    from .executor import run
 
-                # Always show preview before asking for confirmation
-                preview(commands)
-                confirmed = (
-                    True if yes else confirm_prompt("Run these commands?", cfg.confirm_default, yes)
-                )
-                code = run(
-                    commands,
-                    confirm=confirmed,
-                    dry_run=cfg.dry_run,
-                    show_preview=False,
-                    assume_yes=yes,
-                )
-                raise typer.Exit(code)
-            except (ParseError, BuildError, ExecError) as e:
-                rprint(f"[red]Error:[/red] {e}")
-                raise typer.Exit(1) from e
+                    # Always show preview before asking for confirmation
+                    preview(commands)
+                    confirmed = (
+                        True
+                        if yes
+                        else confirm_prompt("Run these commands?", cfg.confirm_default, yes)
+                    )
+                    code = run(
+                        commands,
+                        confirm=confirmed,
+                        dry_run=cfg.dry_run,
+                        show_preview=False,
+                        assume_yes=yes,
+                    )
+                    raise typer.Exit(code)
+                except (ParseError, BuildError, ExecError) as e:
+                    rprint(f"[red]Error:[/red] {e}")
+                    raise typer.Exit(1) from e
+            else:
+                # No subcommand and no prompt: enter NL interactive mode
+                if ctx is not None:
+                    nl(ctx=ctx, prompt=None)
+                return
     except ConfigError as e:
         rprint(f"[red]Error:[/red] {e}")
         raise typer.Exit(1) from e
@@ -109,14 +117,15 @@ def main(
 
 
 def _make_llm(cfg: AppConfig) -> LLMClient:
-    if not cfg.openai_api_key:
-        raise ConfigError(
-            "OPENAI_API_KEY is required for LLM parsing. "
-            "Please set it in your environment or create a .env file with: "
-            "OPENAI_API_KEY=sk-your-key-here"
-        )
-    provider = OpenAIProvider(api_key=cfg.openai_api_key, model=cfg.model)
-    return LLMClient(provider)
+    """Create LLM client with secure API key handling."""
+    try:
+        # This will validate the API key format and presence
+        api_key = cfg.get_api_key_for_client()
+        provider = OpenAIProvider(api_key=api_key, model=cfg.model)
+        return LLMClient(provider)
+    except ConfigError:
+        # Re-raise config errors
+        raise
 
 
 @app.command()

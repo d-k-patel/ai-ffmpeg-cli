@@ -19,7 +19,9 @@ class TestMakeLLM:
         """Test successful LLM client creation."""
         from ai_ffmpeg_cli.config import AppConfig
 
-        config = AppConfig(openai_api_key="test-key", model="gpt-4o")
+        config = AppConfig(
+            openai_api_key="sk-1234567890abcdef1234567890abcdef12345678", model="gpt-4o"
+        )
         client = _make_llm(config)
 
         assert client is not None

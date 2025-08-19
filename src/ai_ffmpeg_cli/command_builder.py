@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .nl_schema import CommandPlan
+
+logger = logging.getLogger(__name__)
 
 
 def build_commands(plan: CommandPlan, assume_yes: bool = False) -> list[list[str]]:
@@ -85,6 +88,13 @@ def build_commands(plan: CommandPlan, assume_yes: bool = False) -> list[list[str
             cmd.extend(["-c", "copy"])
 
         cmd.append(str(entry.output))
+
+        # Validate the command before adding it
+        from .io_utils import validate_ffmpeg_command
+
+        if not validate_ffmpeg_command(cmd):
+            logger.warning(f"Generated command failed validation: {' '.join(cmd[:5])}...")
+
         commands.append(cmd)
 
     return commands

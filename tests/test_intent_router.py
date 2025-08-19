@@ -79,7 +79,8 @@ def test_glob_expands_inputs(tmp_path):
         glob=str(tmp_path / "*.mov"),
         fps="1/5",
     )
-    plan = route_intent(intent)
+    # Allow access to the temporary directory for testing
+    plan = route_intent(intent, allowed_dirs=[tmp_path])
     assert len(plan.entries) == 2
     input_names = {e.input.name for e in plan.entries}
     assert input_names == {"a.mov", "b.mov"}

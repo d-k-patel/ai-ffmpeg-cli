@@ -25,7 +25,7 @@ class TestExpandGlobs:
                 str(tmp_path / "file2.txt"),
             ]
 
-            result = expand_globs(["*.txt"])
+            result = expand_globs(["*.txt"], allowed_dirs=[tmp_path])
 
             assert len(result) == 2
             assert Path("file1.txt").name in [p.name for p in result]
@@ -45,7 +45,7 @@ class TestExpandGlobs:
 
             mock_glob.side_effect = mock_glob_side_effect
 
-            result = expand_globs(["*.txt", "*.log"])
+            result = expand_globs(["*.txt", "*.log"], allowed_dirs=[tmp_path])
 
             assert len(result) == 2
             names = [p.name for p in result]
@@ -72,7 +72,7 @@ class TestExpandGlobs:
                 str(tmp_path / "dir2" / "file.txt"),
             ]
 
-            result = expand_globs(["**/file.txt"])
+            result = expand_globs(["**/file.txt"], allowed_dirs=[tmp_path])
 
             assert len(result) == 2
             mock_glob.assert_called_once_with("**/file.txt", recursive=True)
@@ -88,7 +88,7 @@ class TestExpandGlobs:
 
             mock_glob.side_effect = mock_glob_side_effect
 
-            result = expand_globs(["*.txt", "duplicate.*"])
+            result = expand_globs(["*.txt", "duplicate.*"], allowed_dirs=[tmp_path])
 
             # Should only appear once despite matching multiple patterns
             assert len(result) == 1
@@ -198,7 +198,11 @@ class TestIsSafePath:
             assert is_safe_path(path) is True
 
     def test_safe_absolute_paths(self):
-        """Test safe absolute paths."""
+        """Test safe absolute paths within allowed directories."""
+        from pathlib import Path
+
+        # Create allowed directories for testing
+        allowed_dirs = [Path("/home/user"), Path("/tmp"), Path("/var/log")]
         safe_paths = [
             "/home/user/file.txt",
             "/tmp/file.txt",
@@ -207,7 +211,7 @@ class TestIsSafePath:
         ]
 
         for path in safe_paths:
-            assert is_safe_path(path) is True
+            assert is_safe_path(path, allowed_dirs) is True
 
     def test_unsafe_root_paths(self):
         """Test unsafe root paths."""
@@ -257,18 +261,23 @@ class TestIsSafePath:
         assert is_safe_path(b"bytes/path.txt".decode()) is True
 
     def test_edge_case_paths(self):
-        """Test edge case paths."""
-        edge_cases = [
+        """Test edge case paths - updated for security model."""
+        safe_cases = [
             ".",  # Current directory - should be safe
-            "..",  # Parent directory - should be safe
             "./file.txt",  # Explicit current directory
-            "../file.txt",  # Parent directory file
-            "dir/../file.txt",  # Path with parent reference
         ]
 
-        for path in edge_cases:
-            # These should be considered safe for general file operations
+        unsafe_cases = [
+            "..",  # Parent directory - blocked for security
+            "../file.txt",  # Parent directory file - blocked for security
+            "dir/../file.txt",  # Path with parent reference - blocked for security
+        ]
+
+        for path in safe_cases:
             assert is_safe_path(path) is True
+
+        for path in unsafe_cases:
+            assert is_safe_path(path) is False
 
 
 class TestEnsureParentDir:
