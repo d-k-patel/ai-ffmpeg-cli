@@ -8,6 +8,11 @@ on:
   release:
     types: [ published ]
 
+# Grant default token permissions for package publishing
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   test:
     name: Test Python ${{ matrix.python-version }} on ${{ matrix.os }}
@@ -162,6 +167,9 @@ jobs:
     needs: [test, security]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
     
     steps:
     - uses: actions/checkout@v4
