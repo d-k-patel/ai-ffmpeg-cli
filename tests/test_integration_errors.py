@@ -61,18 +61,30 @@ class TestIntegrationErrors:
     @pytest.mark.integration
     def test_file_permission_errors(self):
         """Test handling of file permission errors."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            # Create a read-only directory
-            readonly_dir = Path(temp_dir) / "readonly"
-            readonly_dir.mkdir()
-            readonly_dir.chmod(0o444)  # Read-only
-
-            # Try to create a file in read-only directory
-            test_file = readonly_dir / "test.mp4"
-
-            # This should fail due to permission error
-            with pytest.raises(PermissionError):
+        import platform
+        
+        if platform.system() == "Windows":
+            # On Windows, try to write to a system directory that requires admin privileges
+            system_dir = Path("C:/Windows/System32")
+            test_file = system_dir / "test_write_permission.mp4"
+            
+            # This should fail due to permission error on Windows
+            with pytest.raises((PermissionError, OSError)):
                 test_file.write_bytes(b"fake video data")
+        else:
+            # On Unix-like systems, use the original approach
+            with tempfile.TemporaryDirectory() as temp_dir:
+                # Create a read-only directory
+                readonly_dir = Path(temp_dir) / "readonly"
+                readonly_dir.mkdir()
+                readonly_dir.chmod(0o444)  # Read-only
+
+                # Try to create a file in read-only directory
+                test_file = readonly_dir / "test.mp4"
+
+                # This should fail due to permission error
+                with pytest.raises(PermissionError):
+                    test_file.write_bytes(b"fake video data")
 
     @pytest.mark.integration
     def test_disk_space_errors(self):
