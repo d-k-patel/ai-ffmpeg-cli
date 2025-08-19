@@ -121,9 +121,10 @@ class TestScan:
         (tmp_path / "image.png").write_bytes(b"fake image")
         (tmp_path / "text.txt").write_bytes(b"text file")
 
-        with patch(
-            "ai_ffmpeg_cli.context_scanner.Path.cwd", return_value=tmp_path
-        ), patch("ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=120.0):
+        with (
+            patch("ai_ffmpeg_cli.context_scanner.Path.cwd", return_value=tmp_path),
+            patch("ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=120.0),
+        ):
             result = scan()
 
         assert result["cwd"] == str(tmp_path)
@@ -137,9 +138,7 @@ class TestScan:
 
         # Check info structure
         assert len(result["info"]) == 2  # video and audio files
-        video_info = next(
-            info for info in result["info"] if "video.mp4" in info["path"]
-        )
+        video_info = next(info for info in result["info"] if "video.mp4" in info["path"])
         assert video_info["duration"] == 120.0
         assert video_info["size"] > 0
 
@@ -149,9 +148,7 @@ class TestScan:
         (tmp_path / "movie.mov").write_bytes(b"fake movie")
         (tmp_path / "song.wav").write_bytes(b"fake song")
 
-        with patch(
-            "ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=None
-        ):
+        with patch("ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=None):
             result = scan(cwd=tmp_path)
 
         assert result["cwd"] == str(tmp_path)
@@ -171,9 +168,7 @@ class TestScan:
 
         mock_most_recent.return_value = tmp_path / "new.mp4"
 
-        with patch(
-            "ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=60.0
-        ):
+        with patch("ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=60.0):
             result = scan(cwd=tmp_path)
 
         assert result["most_recent_video"] == str(tmp_path / "new.mp4")
@@ -206,9 +201,7 @@ class TestScan:
         (tmp_path / "audio.MP3").write_bytes(b"fake audio")
         (tmp_path / "image.PNG").write_bytes(b"fake image")
 
-        with patch(
-            "ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=None
-        ):
+        with patch("ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=None):
             result = scan(cwd=tmp_path)
 
         video_names = [Path(v).name for v in result["videos"]]
@@ -236,9 +229,7 @@ class TestScan:
         for filename in image_files:
             (tmp_path / filename).write_bytes(b"fake image")
 
-        with patch(
-            "ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=None
-        ):
+        with patch("ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=None):
             result = scan(cwd=tmp_path)
 
         # Extract filenames from full paths
@@ -266,9 +257,7 @@ class TestScan:
         # Create file in main directory
         (tmp_path / "main.mp4").write_bytes(b"fake video")
 
-        with patch(
-            "ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=None
-        ):
+        with patch("ai_ffmpeg_cli.context_scanner._ffprobe_duration", return_value=None):
             result = scan(cwd=tmp_path)
 
         # Extract filenames from full paths
