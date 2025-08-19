@@ -51,9 +51,12 @@ def test_memory_leak_basic_operations():
     print(f"Final memory: {final_memory['rss_mb']:.2f} MB")
     print(f"Memory increase: {memory_increase:.2f} MB")
 
-    assert memory_increase < 10, (
+    # Allow for normal Python memory management (small increases are normal)
+    assert memory_increase < 5, (
         f"Memory increase too high: {memory_increase} MB"
-    )  # Should be less than 10MB
+    )  # Should be less than 5MB for basic operations
+
+    return True
 
 
 def test_memory_usage_large_files():
@@ -82,9 +85,12 @@ def test_memory_usage_large_files():
     print(f"Final memory: {final_memory['rss_mb']:.2f} MB")
     print(f"Memory increase: {memory_increase:.2f} MB")
 
-    assert memory_increase < 50, (
+    # Allow for normal Python memory management (small increases are normal)
+    assert memory_increase < 10, (
         f"Memory increase too high: {memory_increase} MB"
-    )  # Should be less than 50MB for large lists
+    )  # Should be less than 10MB for large lists
+
+    return True
 
 
 def test_memory_usage_concurrent_operations():
@@ -130,9 +136,12 @@ def test_memory_usage_concurrent_operations():
     print(f"Memory increase: {memory_increase:.2f} MB")
     print(f"Successful operations: {len([r for r in results if 'success' in r])}")
 
-    assert memory_increase < 20, (
+    # Allow for normal Python memory management (small increases are normal)
+    assert memory_increase < 5, (
         f"Memory increase too high: {memory_increase} MB"
-    )  # Should be less than 20MB
+    )  # Should be less than 5MB for concurrent operations
+
+    return True
 
 
 def test_memory_usage_long_running():
@@ -166,9 +175,12 @@ def test_memory_usage_long_running():
     print(f"Final memory: {final_memory['rss_mb']:.2f} MB")
     print(f"Memory increase: {memory_increase:.2f} MB")
 
-    assert memory_increase < 30, (
+    # Allow for normal Python memory management (small increases are normal)
+    assert memory_increase < 5, (
         f"Memory increase too high: {memory_increase} MB"
-    )  # Should be less than 30MB
+    )  # Should be less than 5MB for long running operations
+
+    return True
 
 
 def test_memory_usage_error_conditions():
@@ -211,9 +223,12 @@ def test_memory_usage_error_conditions():
     print(f"Final memory: {final_memory['rss_mb']:.2f} MB")
     print(f"Memory increase: {memory_increase:.2f} MB")
 
-    assert memory_increase < 15, (
+    # Allow for normal Python memory management (small increases are normal)
+    assert memory_increase < 5, (
         f"Memory increase too high: {memory_increase} MB"
-    )  # Should be less than 15MB
+    )  # Should be less than 5MB for error conditions
+
+    return True
 
 
 def main():
