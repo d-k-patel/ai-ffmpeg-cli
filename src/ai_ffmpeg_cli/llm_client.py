@@ -48,6 +48,7 @@ class LLMProvider:
     Defines the interface for different LLM services. Implementations
     should handle API communication, authentication, and response formatting.
     """
+
     def complete(self, system: str, user: str, timeout: int) -> str:  # pragma: no cover - interface
         """Complete a chat request with system and user messages.
 
@@ -71,6 +72,7 @@ class OpenAIProvider(LLMProvider):
     Handles communication with OpenAI's chat completion API, including
     authentication, error handling, and response processing.
     """
+
     def __init__(self, api_key: str, model: str) -> None:
         """Initialize OpenAI provider with API credentials.
 
@@ -257,6 +259,7 @@ class LLMClient:
     Provides a unified interface for parsing natural language prompts into
     structured ffmpeg intents, with retry logic and comprehensive error handling.
     """
+
     def __init__(self, provider: LLMProvider) -> None:
         """Initialize client with a specific LLM provider.
 

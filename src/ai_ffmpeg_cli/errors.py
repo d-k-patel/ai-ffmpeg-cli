@@ -6,6 +6,7 @@ Each exception type corresponds to a specific failure scenario in
 the processing pipeline.
 """
 
+
 class ConfigError(Exception):
     """Raised when configuration or environment validation fails.
 

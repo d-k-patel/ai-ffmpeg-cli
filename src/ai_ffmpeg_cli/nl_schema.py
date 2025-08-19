@@ -61,6 +61,7 @@ class Action(str, Enum):
     Each action corresponds to a specific ffmpeg operation with predefined
     argument patterns and output file handling.
     """
+
     convert = "convert"  # General format conversion
     extract_audio = "extract_audio"  # Extract audio track to separate file
     remove_audio = "remove_audio"  # Remove audio track from video
@@ -84,6 +85,7 @@ class FfmpegIntent(BaseModel):
     - Action-specific validation rules
     - Support for glob patterns and extra flags
     """
+
     action: Action
     inputs: list[Path] = Field(default_factory=list)
     output: Path | None = None
@@ -179,6 +181,7 @@ class CommandEntry(BaseModel):
     Represents one ffmpeg command with its input, output, and arguments.
     Supports multiple input files for operations like overlay.
     """
+
     input: Path
     output: Path
     args: list[str] = Field(default_factory=list)
@@ -191,5 +194,6 @@ class CommandPlan(BaseModel):
     Contains a human-readable summary and list of commands to execute.
     Used for preview, confirmation, and batch execution.
     """
+
     summary: str
     entries: list[CommandEntry]
