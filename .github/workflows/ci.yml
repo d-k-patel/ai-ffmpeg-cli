@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.11', '3.12', '3.13']
 
     steps:
     - uses: actions/checkout@v4
@@ -72,6 +72,8 @@ jobs:
   security:
     name: Security Checks
     runs-on: ubuntu-latest
+    env:
+      SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
     
     steps:
     - uses: actions/checkout@v4
@@ -85,10 +87,17 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install safety bandit[toml]
-    
-    - name: Run safety check
-      run: safety check --json
-    
+
+    - name: Run safety scan
+      shell: bash
+      run: |
+        if [ -n "${SAFETY_API_KEY}" ]; then
+          safety scan --key "${SAFETY_API_KEY}" --json
+        else
+          echo "SAFETY_API_KEY not set; falling back to 'safety check' (deprecated)"
+          safety check --json
+        fi
+
     - name: Run bandit security check
       run: bandit -r src/ -f json
 
@@ -146,6 +155,7 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
+        skip-existing: true
 
   docker:
     name: Build Docker Image
