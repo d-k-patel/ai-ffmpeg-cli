@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from .errors import BuildError
 from .io_utils import expand_globs
@@ -8,9 +8,6 @@ from .nl_schema import Action
 from .nl_schema import CommandEntry
 from .nl_schema import CommandPlan
 from .nl_schema import FfmpegIntent
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def _derive_output_name(input_path: Path, intent: FfmpegIntent) -> Path:
@@ -35,20 +32,51 @@ def _derive_output_name(input_path: Path, intent: FfmpegIntent) -> Path:
     return input_path.with_suffix(suffix)
 
 
-def route_intent(intent: FfmpegIntent) -> CommandPlan:
-    # Expand any glob patterns provided
+def route_intent(intent: FfmpegIntent, allowed_dirs: list[Path] | None = None) -> CommandPlan:
+    """Route FfmpegIntent to CommandPlan with security validation.
+
+    Args:
+        intent: Parsed user intent
+
+    Returns:
+        CommandPlan: Execution plan with validated commands
+
+    Raises:
+        BuildError: If intent cannot be routed or contains unsafe operations
+    """
+    # Expand any glob patterns provided with security validation
     derived_inputs: list[Path] = list(intent.inputs)
     if intent.glob:
-        globbed = expand_globs([intent.glob])
+        # Use secure glob expansion with allowed directories
+        if allowed_dirs is None:
+            allowed_dirs = [Path.cwd()]  # Default to current directory
+        globbed = expand_globs([intent.glob], allowed_dirs)
         derived_inputs.extend(globbed)
-    if not derived_inputs:
+
+    # Validate all input paths for security
+    from .io_utils import is_safe_path
+
+    validated_inputs = []
+    for input_path in derived_inputs:
+        if is_safe_path(input_path, allowed_dirs):
+            validated_inputs.append(input_path)
+        else:
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Unsafe path rejected: {input_path}")
+
+    if not validated_inputs:
         raise BuildError(
-            "No input files found. Please ensure: "
+            "No safe input files found. Please ensure: "
             "(1) input files exist in the current directory, "
-            "(2) file paths are correct, "
-            "or (3) glob patterns match existing files. "
+            "(2) file paths are correct and safe, "
+            "(3) no path traversal attempts (e.g., ../), "
+            "and (4) glob patterns match existing files. "
             "Try 'ls' to check available files."
         )
+
+    derived_inputs = validated_inputs
 
     entries: list[CommandEntry] = []
 
