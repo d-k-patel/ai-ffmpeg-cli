@@ -10,10 +10,10 @@ readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
 authors = [
-    { name = "aiclip", email = "hello@aiclip.dev" }
+    { name = "thedkpatel", email = "dhruv@thedkpatel.com" }
 ]
 maintainers = [
-    { name = "aiclip", email = "hello@aiclip.dev" }
+    { name = "thedkpatel", email = "dhruv@thedkpatel.com" }
 ]
 keywords = [
     "ffmpeg",
@@ -88,13 +88,13 @@ all = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/aiclip/ai-ffmpeg-cli"
-"Documentation" = "https://aiclip.dev/docs"
-"Repository" = "https://github.com/aiclip/ai-ffmpeg-cli"
-"Bug Tracker" = "https://github.com/aiclip/ai-ffmpeg-cli/issues"
-"Discussions" = "https://github.com/aiclip/ai-ffmpeg-cli/discussions"
-"Changelog" = "https://github.com/aiclip/ai-ffmpeg-cli/releases"
-"Funding" = "https://github.com/sponsors/aiclip"
+"Homepage" = "https://github.com/d-k-patel/ai-ffmpeg-cli"
+"Documentation" = "https://d-k-patel.github.io/ai-ffmpeg-cli/"
+"Repository" = "https://github.com/d-k-patel/ai-ffmpeg-cli"
+"Bug Tracker" = "https://github.com/d-k-patel/ai-ffmpeg-cli/issues"
+"Discussions" = "https://github.com/d-k-patel/ai-ffmpeg-cli/discussions"
+"Changelog" = "https://github.com/d-k-patel/ai-ffmpeg-cli/releases"
+"Funding" = "https://github.com/sponsors/d-k-patel"
 
 [project.scripts]
 aiclip = "ai_ffmpeg_cli.main:app"
