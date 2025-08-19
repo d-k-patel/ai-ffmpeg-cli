@@ -4,4 +4,4 @@ This module provides the current version number for the ai-ffmpeg-cli package.
 The version follows semantic versioning (MAJOR.MINOR.PATCH).
 """
 
-__version__ = "0.1.5"
+__version__ = "0.2.1"
