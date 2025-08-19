@@ -19,8 +19,8 @@ def _ffprobe_duration(path: Path) -> float | None:
     if ffprobe_path is None:
         return None
     try:
-        # Call ffprobe via absolute path, pass filename as a separate argument, no shell
-        result = subprocess.run(  # nosec B603: command is fixed and arguments are not executed via shell
+        # Call ffprobe with explicit args and no shell
+        result = subprocess.run(  # nosec B603, B607
             [
                 "ffprobe",
                 "-v",
