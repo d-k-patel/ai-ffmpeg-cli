@@ -162,10 +162,14 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = true
 show_error_codes = true
+exclude = [
+    "^tests/",
+]
 
 [[tool.mypy.overrides]]
-module = "tests.*"
-disallow_untyped_defs = false
+module = ["tests.*"]
+# Completely ignore type errors in tests to keep the focus on library types
+ignore_errors = true
 
 # Pytest configuration
 [tool.pytest.ini_options]

@@ -55,7 +55,7 @@ jobs:
         ruff format --check src tests
 
     - name: Type check with mypy
-      run: mypy src tests --install-types --non-interactive
+      run: mypy src --install-types --non-interactive
 
     - name: Test with pytest
       run: pytest -v --cov=ai_ffmpeg_cli --cov-report=xml

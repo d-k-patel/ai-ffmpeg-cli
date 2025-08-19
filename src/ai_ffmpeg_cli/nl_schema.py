@@ -76,9 +76,9 @@ class FfmpegIntent(BaseModel):
 
         # start/end: allow numeric seconds -> HH:MM:SS[.ms]
         if "start" in values and not isinstance(values.get("start"), str):
-            values["start"] = _seconds_to_timestamp(values["start"])  # type: ignore[index]
+            values["start"] = _seconds_to_timestamp(values["start"])
         if "end" in values and not isinstance(values.get("end"), str):
-            values["end"] = _seconds_to_timestamp(values["end"])  # type: ignore[index]
+            values["end"] = _seconds_to_timestamp(values["end"])
         return values
 
     @model_validator(mode="after")
