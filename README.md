@@ -1,6 +1,7 @@
 # 🎬 ai-ffmpeg-cli
 
 [![PyPI version](https://badge.fury.io/py/ai-ffmpeg-cli.svg)](https://badge.fury.io/py/ai-ffmpeg-cli)
+[![PyPI Downloads](https://static.pepy.tech/badge/ai-ffmpeg-cli)](https://pepy.tech/projects/ai-ffmpeg-cli)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![codecov](https://codecov.io/github/d-k-patel/ai-ffmpeg-cli/graph/badge.svg?token=Y1DVR6RWK2)](https://codecov.io/github/d-k-patel/ai-ffmpeg-cli)
@@ -337,8 +338,8 @@ make all
 
 ## 📅 Release Information
 
-**Current Version**: 0.2.1  
-**Release Date**: August 19, 2025  
+**Current Version**: 0.2.2  
+**Release Date**: August 20, 2025  
 **Python Support**: 3.10+  
 **License**: MIT
 

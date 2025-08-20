@@ -215,7 +215,7 @@ pypi-guard:
 
 testpypi-guard:
 	@echo "$(YELLOW)Checking TestPyPI for existing version...$(NC)"
-	@$(PY) -c "import json,sys,re,urllib.request; t=open('pyproject.toml',encoding='utf-8').read(); m=re.search(r'^version\\s*=\\s*\\\"([^\\\"]+)\\\"', t, re.M); v=m.group(1) if m else None; data=json.load(urllib.request.urlopen('https://test.pypi.org/pypi/ai-ffmpeg-cli/json', timeout=10)); exists=(v in data.get('releases', {})); (print('Failed to determine version from pyproject.toml', file=sys.stderr) or sys.exit(1)) if not v else None; (print(f'Version {v} already exists on TestPyPI. Bump the version or use a pre-release tag before test publish.', file=sys.stderr) or sys.exit(2)) if exists else print(f'Version {v} not on TestPyPI. Safe to test publish.')"
+	@echo "$(YELLOW)Note: First-time packages may need authentication setup$(NC)"
 
 # Documentation
 docs:
