@@ -9,7 +9,7 @@
 
 > **Stop Googling ffmpeg commands. Just describe what you want.**
 
-![ai-ffmpeg-cli preview](assets/preview.png)
+![ai-ffmpeg-cli preview](https://ik.imagekit.io/thedkpatel/preview.png)
 
 **ai-ffmpeg-cli** is an AI-powered CLI that translates natural language into safe, previewable `ffmpeg` commands. Built for developers, content creators, and anyone who works with media files but doesn't want to memorize complex syntax.
 
