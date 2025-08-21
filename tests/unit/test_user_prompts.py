@@ -3,8 +3,9 @@
 This module tests the user confirmation functionality that was previously untested.
 """
 
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import Mock, patch, call
 
 from ai_ffmpeg_cli.user_prompts import confirm_prompt
 
@@ -131,7 +132,7 @@ class TestUserPrompts:
         mixed_case_responses = ["YeS", "yEs", "YeS", "No", "nO", "NO"]
         expected_results = [True, True, True, False, False, False]
 
-        for response, expected in zip(mixed_case_responses, expected_results):
+        for response, expected in zip(mixed_case_responses, expected_results, strict=False):
             with patch("builtins.input", return_value=response):
                 result = confirm_prompt("Continue?", default_yes=True)
                 assert result == expected, f"Failed for response: {response}"
@@ -195,21 +196,27 @@ class TestUserPrompts:
     def test_confirm_prompt_error_handling(self):
         """Test confirm prompt error handling."""
         # Test with KeyboardInterrupt
-        with patch("builtins.input", side_effect=KeyboardInterrupt):
-            with pytest.raises(KeyboardInterrupt):
-                confirm_prompt("Continue?", default_yes=True)
+        with (
+            patch("builtins.input", side_effect=KeyboardInterrupt),
+            pytest.raises(KeyboardInterrupt),
+        ):
+            confirm_prompt("Continue?", default_yes=True)
 
     def test_confirm_prompt_value_error(self):
         """Test confirm prompt with ValueError."""
-        with patch("builtins.input", side_effect=ValueError("Invalid input")):
-            with pytest.raises(ValueError):
-                confirm_prompt("Continue?", default_yes=True)
+        with (
+            patch("builtins.input", side_effect=ValueError("Invalid input")),
+            pytest.raises(ValueError),
+        ):
+            confirm_prompt("Continue?", default_yes=True)
 
     def test_confirm_prompt_os_error(self):
         """Test confirm prompt with OSError."""
-        with patch("builtins.input", side_effect=OSError("Input error")):
-            with pytest.raises(OSError):
-                confirm_prompt("Continue?", default_yes=True)
+        with (
+            patch("builtins.input", side_effect=OSError("Input error")),
+            pytest.raises(OSError),
+        ):
+            confirm_prompt("Continue?", default_yes=True)
 
     def test_confirm_prompt_integration_scenario(self):
         """Test confirm prompt in a realistic integration scenario."""
@@ -307,7 +314,6 @@ class TestUserPrompts:
     def test_confirm_prompt_thread_safety(self):
         """Test confirm prompt thread safety."""
         import threading
-        import time
 
         results = []
 

@@ -185,9 +185,7 @@ class TestCheckOverwriteProtection:
         ]
 
         with (
-            patch(
-                "ai_ffmpeg_cli.executor.confirm_prompt", return_value=True
-            ) as mock_confirm,
+            patch("ai_ffmpeg_cli.executor.confirm_prompt", return_value=True) as mock_confirm,
             patch("ai_ffmpeg_cli.executor.console"),
         ):
             result = _check_overwrite_protection(commands, assume_yes=False)
@@ -252,9 +250,7 @@ class TestRun:
     @patch("ai_ffmpeg_cli.executor.preview")
     @patch("ai_ffmpeg_cli.executor._check_overwrite_protection")
     @patch("ai_ffmpeg_cli.executor.subprocess.run")
-    def test_run_successful_execution(
-        self, mock_subprocess, mock_overwrite, mock_preview
-    ):
+    def test_run_successful_execution(self, mock_subprocess, mock_overwrite, mock_preview):
         """Test successful command execution."""
         commands = [["ffmpeg", "-i", "input.mp4", "output.mp4"]]
         mock_overwrite.return_value = True
@@ -262,9 +258,7 @@ class TestRun:
         mock_result.returncode = 0
         mock_subprocess.return_value = mock_result
 
-        result = run(
-            commands, confirm=True, dry_run=False, show_preview=True, assume_yes=False
-        )
+        result = run(commands, confirm=True, dry_run=False, show_preview=True, assume_yes=False)
 
         assert result == 0
         mock_subprocess.assert_called_once_with(commands[0], check=True)
@@ -277,9 +271,7 @@ class TestRun:
         commands = [["ffmpeg", "-i", "input.mp4", "output.mp4"]]
         mock_overwrite.return_value = False
 
-        result = run(
-            commands, confirm=True, dry_run=False, show_preview=True, assume_yes=False
-        )
+        result = run(commands, confirm=True, dry_run=False, show_preview=True, assume_yes=False)
 
         assert result == 1  # Cancelled
 
@@ -317,9 +309,7 @@ class TestRun:
         mock_result.returncode = 0
         mock_subprocess.return_value = mock_result
 
-        result = run(
-            commands, confirm=True, dry_run=False, show_preview=True, assume_yes=False
-        )
+        result = run(commands, confirm=True, dry_run=False, show_preview=True, assume_yes=False)
 
         assert result == 0
         assert mock_subprocess.call_count == 2
@@ -330,9 +320,7 @@ class TestRun:
     @patch("ai_ffmpeg_cli.executor.preview")
     @patch("ai_ffmpeg_cli.executor._check_overwrite_protection")
     @patch("ai_ffmpeg_cli.executor.subprocess.run")
-    def test_run_second_command_fails(
-        self, mock_subprocess, mock_overwrite, mock_preview
-    ):
+    def test_run_second_command_fails(self, mock_subprocess, mock_overwrite, mock_preview):
         """Test when second command fails."""
         commands = [
             ["ffmpeg", "-i", "input1.mp4", "output1.mp4"],
@@ -380,11 +368,7 @@ class TestRun:
         mock_result.returncode = 0
         mock_subprocess.return_value = mock_result
 
-        result = run(
-            commands, confirm=True, dry_run=False, show_preview=False, assume_yes=True
-        )
+        result = run(commands, confirm=True, dry_run=False, show_preview=False, assume_yes=True)
 
         assert result == 0
-        mock_overwrite.assert_called_once_with(
-            commands, True
-        )  # assume_yes passed through
+        mock_overwrite.assert_called_once_with(commands, True)  # assume_yes passed through

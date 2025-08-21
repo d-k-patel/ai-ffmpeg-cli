@@ -117,9 +117,7 @@ def _display_scan_summary(context: dict) -> None:
         context: Context dictionary from scan()
     """
     # Create summary table
-    summary_table = Table(
-        title="[bold blue]Scan Summary[/bold blue]", show_header=False, box=None
-    )
+    summary_table = Table(title="[bold blue]Scan Summary[/bold blue]", show_header=False, box=None)
     summary_table.add_column("Category", style="bold cyan")
     summary_table.add_column("Count", style="bold green", justify="center")
     summary_table.add_column("Details", style="white")
@@ -153,9 +151,7 @@ def _display_scan_summary(context: dict) -> None:
     # Add subtitle files
     subtitle_files = context.get("subtitle_files", [])
     if subtitle_files:
-        summary_table.add_row(
-            "Subtitles", str(len(subtitle_files)), "Ready for processing"
-        )
+        summary_table.add_row("Subtitles", str(len(subtitle_files)), "Ready for processing")
 
     if summary_table.row_count > 0:
         console.print(summary_table)

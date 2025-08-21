@@ -8,18 +8,17 @@ with various options and configurations.
 import argparse
 import subprocess
 import sys
-from pathlib import Path
 
 
 def run_command(cmd, description):
     """Run a command and handle errors."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Running: {description}")
     print(f"Command: {' '.join(cmd)}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     try:
-        result = subprocess.run(cmd, check=True, capture_output=False)
+        subprocess.run(cmd, check=True, capture_output=False)
         print(f"\n✅ {description} completed successfully!")
         return True
     except subprocess.CalledProcessError as e:
@@ -48,13 +47,9 @@ def main():
         help="Test category to run",
     )
 
-    parser.add_argument(
-        "--cov", action="store_true", help="Run with coverage reporting"
-    )
+    parser.add_argument("--cov", action="store_true", help="Run with coverage reporting")
 
-    parser.add_argument(
-        "--html", action="store_true", help="Generate HTML coverage report"
-    )
+    parser.add_argument("--html", action="store_true", help="Generate HTML coverage report")
 
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
 
@@ -69,9 +64,7 @@ def main():
         help="Run tests in parallel with specified number of workers",
     )
 
-    parser.add_argument(
-        "--failed-first", action="store_true", help="Run failed tests first"
-    )
+    parser.add_argument("--failed-first", action="store_true", help="Run failed tests first")
 
     parser.add_argument(
         "--tb",

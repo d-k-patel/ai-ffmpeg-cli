@@ -7,12 +7,14 @@ that can be used across all test modules.
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
+from unittest.mock import patch
 
 import pytest
 
 from ai_ffmpeg_cli.config import AppConfig
-from ai_ffmpeg_cli.intent_models import FfmpegIntent, Action
+from ai_ffmpeg_cli.intent_models import Action
+from ai_ffmpeg_cli.intent_models import FfmpegIntent
 from ai_ffmpeg_cli.llm_client import LLMClient
 
 
@@ -130,7 +132,9 @@ def mock_openai():
     """Mock OpenAI API calls."""
     with patch("openai.OpenAI") as mock_client_class:
         mock_client = Mock()
-        mock_client.chat.completions.create.return_value.choices[0].message.content = (
+        mock_client.chat.completions.create.return_value.choices[
+            0
+        ].message.content = (
             '{"action": "convert", "inputs": ["test.mp4"], "output": "output.mp4", "format": "mp4"}'
         )
         mock_client_class.return_value = mock_client

@@ -35,6 +35,9 @@ from .version_info import __version__
 # Initialize console for Rich output
 console = Console()
 
+# Initialize logger
+logger = logging.getLogger(__name__)
+
 # Initialize Typer app with completion disabled and support for invocation without subcommands
 app = typer.Typer(add_completion=False, help="AI-powered ffmpeg CLI", invoke_without_command=True)
 
@@ -192,9 +195,13 @@ def _display_completion_summary(output_dir: Path | None = None) -> None:
             console.print(completion_table)
             console.print()
 
-    except Exception:
-        # Silently handle any errors in completion summary
-        pass
+    except (OSError, PermissionError, FileNotFoundError) as e:
+        # Handle expected file system errors in completion summary
+        # These are non-critical for the main application flow
+        logger.debug(f"Could not display completion summary: {e}")
+    except Exception as e:
+        # Log unexpected errors but don't fail the application
+        logger.warning(f"Unexpected error in completion summary: {e}")
 
 
 def _display_config_status(cfg: AppConfig) -> None:

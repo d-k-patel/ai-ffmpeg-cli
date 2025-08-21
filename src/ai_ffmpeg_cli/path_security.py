@@ -29,9 +29,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
 
-def expand_globs(
-    patterns: Iterable[str], allowed_dirs: list[Path] | None = None
-) -> list[Path]:
+def expand_globs(patterns: Iterable[str], allowed_dirs: list[Path] | None = None) -> list[Path]:
     """Expand glob patterns safely with comprehensive path validation.
 
     Expands glob patterns while ensuring all resulting paths are safe and
@@ -188,9 +186,7 @@ def is_safe_path(path: object, allowed_dirs: list[Path] | None = None) -> bool:
             return False
 
         # Additional check for single character paths that could be roots
-        if len(original_str.strip()) <= 3 and any(
-            c in original_str for c in ["/", "\\"]
-        ):
+        if len(original_str.strip()) <= 3 and any(c in original_str for c in ["/", "\\"]):
             return False
 
         # Detect path traversal attempts in path components
@@ -216,10 +212,7 @@ def is_safe_path(path: object, allowed_dirs: list[Path] | None = None) -> bool:
         path_lower = path_str.lower()
         for pattern in dangerous_patterns:
             try:
-                if (
-                    path_str.startswith(pattern)
-                    or Path(pattern).resolve() in resolved_path.parents
-                ):
+                if path_str.startswith(pattern) or Path(pattern).resolve() in resolved_path.parents:
                     return False
             except (OSError, ValueError):
                 # If we can't resolve the pattern, check string matching

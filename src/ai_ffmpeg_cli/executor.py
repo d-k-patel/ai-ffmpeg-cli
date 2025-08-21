@@ -85,9 +85,7 @@ def _check_overwrite_protection(commands: list[list[str]], assume_yes: bool = Fa
         return True  # Skip confirmation
 
     # Show which files would be overwritten in a table
-    overwrite_table = Table(
-        title="[bold yellow]Files That Will Be Overwritten[/bold yellow]"
-    )
+    overwrite_table = Table(title="[bold yellow]Files That Will Be Overwritten[/bold yellow]")
     overwrite_table.add_column("#", style="bold red", justify="center")
     overwrite_table.add_column("File Path", style="white")
     overwrite_table.add_column("Size", style="cyan", justify="right")
@@ -95,9 +93,7 @@ def _check_overwrite_protection(commands: list[list[str]], assume_yes: bool = Fa
     for i, file_path in enumerate(existing_files, 1):
         size = file_path.stat().st_size if file_path.exists() else 0
         size_str = (
-            f"{size / (1024 * 1024):.1f} MB"
-            if size > 1024 * 1024
-            else f"{size / 1024:.1f} KB"
+            f"{size / (1024 * 1024):.1f} MB" if size > 1024 * 1024 else f"{size / 1024:.1f} KB"
         )
         overwrite_table.add_row(str(i), str(file_path), size_str)
 
@@ -159,9 +155,7 @@ def _execute_single_command(cmd: list[str], cmd_num: int, total_cmds: int) -> No
     ffmpeg_exec = cmd[0]
     resolved = shutil.which(ffmpeg_exec)
     if resolved is None:
-        raise ExecError(
-            f"Executable not found: {ffmpeg_exec}. Ensure it is installed and on PATH."
-        )
+        raise ExecError(f"Executable not found: {ffmpeg_exec}. Ensure it is installed and on PATH.")
 
     # Final security validation of the command
     from .file_operations import validate_ffmpeg_command
@@ -183,9 +177,7 @@ def _execute_single_command(cmd: list[str], cmd_num: int, total_cmds: int) -> No
 
     try:
         # Execute the command with proper error handling
-        result = subprocess.run(
-            cmd, check=True
-        )  # nosec B603: fixed binary, no shell, args vetted
+        result = subprocess.run(cmd, check=True)  # nosec B603: fixed binary, no shell, args vetted
         if result.returncode != 0:
             raise ExecError(
                 f"ffmpeg command failed with exit code {result.returncode}. "
@@ -242,9 +234,7 @@ def run(
         preview(commands)
 
     if dry_run:
-        console.print(
-            "[bold yellow]Dry run mode - no commands will be executed[/bold yellow]"
-        )
+        console.print("[bold yellow]Dry run mode - no commands will be executed[/bold yellow]")
         return 0
 
     if not confirm:
