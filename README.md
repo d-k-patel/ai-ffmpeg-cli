@@ -1,14 +1,19 @@
-# 🎬 aiclip
+# 🎬 ai-ffmpeg-cli
 
 [![PyPI version](https://badge.fury.io/py/ai-ffmpeg-cli.svg)](https://badge.fury.io/py/ai-ffmpeg-cli)
+[![PyPI Downloads](https://static.pepy.tech/badge/ai-ffmpeg-cli)](https://pepy.tech/projects/ai-ffmpeg-cli)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![codecov](https://codecov.io/github/d-k-patel/ai-ffmpeg-cli/graph/badge.svg?token=Y1DVR6RWK2)](https://codecov.io/github/d-k-patel/ai-ffmpeg-cli)
+[![CI/CD Pipeline](https://github.com/d-k-patel/ai-ffmpeg-cli/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/d-k-patel/ai-ffmpeg-cli/actions)
 
 > **Stop Googling ffmpeg commands. Just describe what you want.**
 
-**aiclip** is an AI-powered CLI that translates natural language into safe, previewable `ffmpeg` commands. Built for developers, content creators, and anyone who works with media files but doesn't want to memorize complex syntax.
+![ai-ffmpeg-cli preview](assets/preview.png)
 
-## ✨ Why aiclip?
+**ai-ffmpeg-cli** is an AI-powered CLI that translates natural language into safe, previewable `ffmpeg` commands. Built for developers, content creators, and anyone who works with media files but doesn't want to memorize complex syntax.
+
+## ✨ Why ai-ffmpeg-cli?
 
 - 🤖 **AI-Native**: Translate plain English to perfect ffmpeg commands
 - 🔒 **Safety First**: Preview every command before execution  
@@ -20,7 +25,7 @@
 # Instead of this...
 ffmpeg -i input.mp4 -vf "scale=1280:720" -c:v libx264 -c:a aac -b:v 2000k output.mp4
 
-# Just say this...
+# Just say this... (cli command is different)
 aiclip "convert input.mp4 to 720p with good quality"
 ```
 
@@ -31,9 +36,6 @@ aiclip "convert input.mp4 to 720p with good quality"
 ```bash
 # Install from PyPI
 pip install ai-ffmpeg-cli
-
-# Or with Homebrew (coming soon)
-brew install aiclip
 ```
 
 ### Setup
@@ -55,13 +57,43 @@ aiclip
 ```
 
 ```text
-convert this video to 720p
-┌───┬──────────────────────────────────────────────────────────┐
-│ # │ Command                                                  │
-├───┼──────────────────────────────────────────────────────────┤
-│ 1 │ ffmpeg -i input.mp4 -vf scale=1280:720 -c:v libx264...   │
-└───┴──────────────────────────────────────────────────────────┘
-Run these commands? [Y/n]
+╭─────────────────────────────────────── Welcome to Interactive Mode ───────────────────────────────────────╮
+│                                                                                                           │
+│  ai-ffmpeg-cli v0.2.2                                                                                     │
+│                                                                                                           │
+│  AI-powered video and audio processing with natural language                                              │
+│  Type your request in plain English and let AI handle the ffmpeg complexity!                              │
+│                                                                                                           │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+               Available Media Files               
+┏━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Type  ┃ Count ┃ Files                          ┃
+┡━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Videos │   1   │ • input.mp4                    │
+│ Images │   2   │ • logo.png                     │
+│        │       │ • watermark.png                │
+└────────┴───────┴────────────────────────────────┘
+
+╭────────────────────────────────────────── Output Configuration ───────────────────────────────────────────╮
+│ Output Directory: /path/to/your/aiclip                                                                    │
+│ Generated files will be saved here                                                                        │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+aiclip> convert this video to 720p
+
+┏━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┓
+┃ # ┃ Command                                      ┃ Output                                        ┃ Status ┃
+┡━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━┩
+│ 1 │ ffmpeg -i input.mp4 -vf scale=1280:720...    │ /path/to/your/aiclip/input_720p.mp4           │  New   │
+└───┴──────────────────────────────────────────────┴───────────────────────────────────────────────┴────────┘
+
+╭────────────────────────────────────────── Confirmation Required ──────────────────────────────────────────╮
+│                                                                                                           │
+│  Run these commands?                                                                                      │
+│                                                                                                           │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ [y/n]: Using default: Y
 ```
 
 Or run a one-shot command (no interactive prompt):
@@ -84,6 +116,10 @@ aiclip "make input.mp4 1080p resolution"
 # Compress files
 aiclip "compress large-video.mp4 to smaller size"
 aiclip "reduce file size with CRF 23"
+
+# Create animated GIFs
+aiclip "convert input.mp4 to animated gif"
+aiclip "create a 5 second animated gif from video.mp4"
 ```
 
 ### Audio Operations
@@ -145,6 +181,9 @@ aiclip --timeout 120 "complex processing task"
 
 # Verbose logging for troubleshooting
 aiclip --verbose "your command"
+
+# Specify custom output directory
+aiclip --output-dir /path/to/output "convert video.mp4 to 720p"
 ```
 
 ### Subcommands and option placement
@@ -174,6 +213,7 @@ OPENAI_API_KEY=sk-your-openai-api-key
 # Optional
 AICLIP_MODEL=gpt-4o              # AI model to use
 AICLIP_DRY_RUN=false            # Preview commands by default
+AICLIP_OUTPUT_DIR=aiclip        # Default output directory
 ```
 
 ## 🎯 Smart Defaults & Safety
@@ -183,6 +223,56 @@ AICLIP_DRY_RUN=false            # Preview commands by default
 - **Sensible Codecs**: Automatically chooses h264+aac for MP4, libx265 for compression
 - **Stream Copy**: Uses `-c copy` for trimming when possible (faster, lossless)
 - **Context Aware**: Scans your directory to suggest input files and durations
+- **Organized Output**: All generated files are saved to a dedicated output directory
+- **Duration Support**: Automatically handles time-based requests (e.g., "5 second GIF")
+
+## 📁 Output Directory Management
+
+aiclip automatically organizes all generated files in a dedicated output directory:
+
+```bash
+# Default behavior - files saved to "aiclip" folder
+aiclip "convert video.mp4 to 720p"
+# Output: ./aiclip/video_720p.mp4
+
+# Custom output directory
+aiclip --output-dir /path/to/output "convert video.mp4 to 720p"
+# Output: /path/to/output/video_720p.mp4
+
+# Environment variable configuration
+export AICLIP_OUTPUT_DIR=my_outputs
+aiclip "convert video.mp4 to 720p"
+# Output: ./my_outputs/video_720p.mp4
+```
+
+**Benefits:**
+- 🗂️ **Organized**: All generated files in one place
+- 🔍 **Easy to find**: No more searching through mixed directories
+- 🧹 **Clean workspace**: Input files stay separate from outputs
+- 📊 **Progress tracking**: See all your generated files at a glance
+
+## ⏱️ Duration and Time Handling
+
+aiclip intelligently handles time-based requests for video and GIF creation:
+
+```bash
+# Create GIFs with specific duration
+aiclip "convert video.mp4 to 5 second animated gif"
+aiclip "create a 10 second animated gif from input.mp4"
+
+# Time-based video operations
+aiclip "extract first 30 seconds from video.mp4"
+aiclip "create 15 second clip from input.mp4"
+
+# Thumbnails at specific times
+aiclip "extract frame at 2:30 from video.mp4"
+aiclip "create thumbnail at 10 seconds from input.mp4"
+```
+
+**Supported time formats:**
+- **Seconds**: "5 second", "10s", "30 seconds"
+- **Time codes**: "2:30", "1:45:30", "00:02:15"
+- **Duration**: "5 second duration", "10 second clip"
 
 ## 📊 Supported Operations
 
@@ -196,12 +286,13 @@ AICLIP_DRY_RUN=false            # Preview commands by default
 | **Thumbnail** | "frame at 10s" | `-ss 00:00:10 -vframes 1` |
 | **Overlay** | "watermark top-right" | `-filter_complex overlay=W-w-10:10` |
 | **Batch** | "all *.mov files" | Shell loops with glob patterns |
+| **GIF Creation** | "animated gif", "5 second gif" | `-vf fps=10,scale=320:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse -c:v gif` |
 
 ## 🛠️ Development
 
 ```bash
 # Clone and setup
-git clone https://github.com/yourusername/ai-ffmpeg-cli.git
+git clone https://github.com/d-k-patel/ai-ffmpeg-cli.git
 cd ai-ffmpeg-cli
 make setup
 
@@ -254,12 +345,17 @@ sudo apt install ffmpeg      # Ubuntu
 - Check file extensions match your request
 - Use `ls` to verify available files
 
+**"Duration not applied to GIF/video"**
+- Be explicit about duration: "5 second animated gif"
+- Use clear time specifications: "10 second video clip"
+- Check that the AI model includes duration in the generated command
+
 ### Getting Help
 
 - 📖 **Documentation**: Full guides at [docs link]
 - 💬 **Discord**: Join our community for real-time help
-- 🐛 **Issues**: Report bugs on [GitHub Issues](https://github.com/yourusername/ai-ffmpeg-cli/issues)
-- 💡 **Discussions**: Feature requests and Q&A on [GitHub Discussions](https://github.com/yourusername/ai-ffmpeg-cli/discussions)
+- 🐛 **Issues**: Report bugs on [GitHub Issues](https://github.com/d-k-patel/ai-ffmpeg-cli/issues)
+- 💡 **Discussions**: Feature requests and Q&A on [GitHub Discussions](https://github.com/d-k-patel/ai-ffmpeg-cli/discussions)
 
 ## 🤝 Contributing
 
@@ -280,6 +376,8 @@ See our [Contributing Guide](CONTRIBUTING.md) to get started.
 - ⚡ **Local Models**: Run without internet using local AI
 - 🏢 **Team Features**: Shared commands and analytics
 - 🔌 **Integrations**: GitHub Actions, Docker, CI/CD pipelines
+- 🎬 **Enhanced Duration Support**: Better handling of time-based requests
+- 📁 **Advanced Output Management**: Custom naming patterns and organization
 
 ## 📄 License
 

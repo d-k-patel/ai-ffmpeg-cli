@@ -1,15 +1,34 @@
+"""Command builder for ai-ffmpeg-cli.
+
+This module converts command plans into executable ffmpeg command lists,
+applying appropriate defaults and ensuring proper argument ordering.
+"""
+
 from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .nl_schema import CommandPlan
+    from .intent_models import CommandPlan
 
 logger = logging.getLogger(__name__)
 
 
 def build_commands(plan: CommandPlan, assume_yes: bool = False) -> list[list[str]]:
+    """Build executable ffmpeg commands from a command plan.
+
+    Converts a CommandPlan into a list of executable ffmpeg command lists,
+    applying appropriate defaults and ensuring proper argument ordering
+    for optimal performance and compatibility.
+
+    Args:
+        plan: Command plan containing entries to convert
+        assume_yes: Whether to add -y flag to overwrite output files
+
+    Returns:
+        List of ffmpeg command argument lists ready for execution
+    """
     commands: list[list[str]] = []
     for entry in plan.entries:
         cmd: list[str] = ["ffmpeg"]
@@ -22,7 +41,7 @@ def build_commands(plan: CommandPlan, assume_yes: bool = False) -> list[list[str
         post_input_flags: list[str] = []
 
         # Split args into pre/post by presence of -ss/-t/-to which are often pre-input
-        # Keep order stable otherwise
+        # Keep order stable otherwise for predictable command generation
         for i in range(0, len(entry.args), 2):
             flag = entry.args[i]
             val = entry.args[i + 1] if i + 1 < len(entry.args) else None
@@ -31,6 +50,7 @@ def build_commands(plan: CommandPlan, assume_yes: bool = False) -> list[list[str
             if val is not None:
                 bucket.append(val)
 
+        # Build command with proper flag ordering
         cmd.extend(pre_input_flags)
         cmd.extend(["-i", str(entry.input)])
         for extra in entry.extra_inputs:
@@ -47,7 +67,7 @@ def build_commands(plan: CommandPlan, assume_yes: bool = False) -> list[list[str
         # Apply broad defaults below.
 
         if "-vframes" in entry.args:
-            # thumbnail
+            # thumbnail action detected
             pass
 
         # If overlay is intended, builder must add filter_complex
@@ -73,7 +93,7 @@ def build_commands(plan: CommandPlan, assume_yes: bool = False) -> list[list[str
         if "compress" in summary and "-crf" not in existing_args_str:
             cmd.extend(["-crf", "28"])
         if "frames" in summary and "fps=" not in existing_args_str:
-            # default fps = 1/5
+            # default fps = 1/5 for frame extraction
             cmd.extend(["-vf", "fps=1/5"])
         if "overlay" in summary and "-filter_complex" not in entry.args:
             # default top-right overlay with 10px margins
@@ -89,8 +109,8 @@ def build_commands(plan: CommandPlan, assume_yes: bool = False) -> list[list[str
 
         cmd.append(str(entry.output))
 
-        # Validate the command before adding it
-        from .io_utils import validate_ffmpeg_command
+        # Validate the command before adding it for security
+        from .file_operations import validate_ffmpeg_command
 
         if not validate_ffmpeg_command(cmd):
             logger.warning(f"Generated command failed validation: {' '.join(cmd[:5])}...")
