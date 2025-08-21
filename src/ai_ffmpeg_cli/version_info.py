@@ -6,4 +6,4 @@ The version follows semantic versioning (MAJOR.MINOR.PATCH).
 
 # Current version of the ai-ffmpeg-cli package
 # Follows semantic versioning: MAJOR.MINOR.PATCH
-__version__ = "0.2.4"
+__version__ = "0.2.5"
