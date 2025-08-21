@@ -1,37 +1,38 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: '[BUG] '
-labels: ['bug', 'needs-triage']
+title: ''
+labels: ''
 assignees: ''
+
 ---
 
-## Bug Description
+**Describe the bug**
 A clear and concise description of what the bug is.
 
-## Steps to Reproduce
-1. Run command: `aiclip "..."`
-2. See error: `...`
-3. Expected behavior: `...`
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
 
-## Environment
-- **OS**: [e.g., macOS 14.0, Ubuntu 22.04, Windows 11]
-- **Python version**: [e.g., 3.10.0]
-- **aiclip version**: [e.g., 0.2.2]
-- **ffmpeg version**: [e.g., 6.0]
+**Expected behavior**
+A clear and concise description of what you expected to happen.
 
-## Error Details
-```
-# Paste the full error message here
-```
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
 
-## Additional Context
-- What were you trying to accomplish?
-- Any relevant files or configurations?
-- Does this happen with all inputs or specific ones?
+**Desktop (please complete the following information):**
+ - OS: [e.g. iOS]
+ - Browser [e.g. chrome, safari]
+ - Version [e.g. 22]
 
-## Checklist
-- [ ] I've searched existing issues for duplicates
-- [ ] I've provided all required environment details
-- [ ] I've included the exact command that caused the issue
-- [ ] I've checked that ffmpeg is properly installed and accessible
+**Smartphone (please complete the following information):**
+ - Device: [e.g. iPhone6]
+ - OS: [e.g. iOS8.1]
+ - Browser [e.g. stock browser, safari]
+ - Version [e.g. 22]
+
+**Additional context**
+Add any other context about the problem here.

@@ -1,9 +1,10 @@
 ---
 name: Documentation improvement
 about: Suggest improvements to documentation
-title: '[DOCS] '
-labels: ['documentation', 'good first issue']
+title: "[DOCS] "
+labels: documentation, good first issue
 assignees: ''
+
 ---
 
 ## Documentation Area

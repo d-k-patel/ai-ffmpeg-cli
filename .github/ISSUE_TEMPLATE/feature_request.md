@@ -1,37 +1,20 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: '[FEATURE] '
-labels: ['enhancement', 'needs-triage']
+title: ''
+labels: ''
 assignees: ''
+
 ---
 
-## Problem Statement
-A clear and concise description of what problem this feature would solve.
+**Is your feature request related to a problem? Please describe.**
+A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
-## Proposed Solution
+**Describe the solution you'd like**
 A clear and concise description of what you want to happen.
 
-## Use Cases
-- **Primary use case**: [e.g., "Batch processing multiple video files"]
-- **Secondary use cases**: [e.g., "Integration with CI/CD pipelines"]
-
-## Example Usage
-```bash
-# How you envision using this feature
-aiclip "your proposed command here"
-```
-
-## Alternative Solutions
+**Describe alternatives you've considered**
 A clear and concise description of any alternative solutions or features you've considered.
 
-## Additional Context
-- Is this feature related to a specific workflow?
-- Would this be a breaking change?
-- Any performance considerations?
-
-## Checklist
-- [ ] I've searched existing issues for similar requests
-- [ ] This feature aligns with the project's safety-first approach
-- [ ] I've provided clear use cases and examples
-- [ ] I understand this may not be implemented immediately
+**Additional context**
+Add any other context or screenshots about the feature request here.
