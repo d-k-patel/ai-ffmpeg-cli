@@ -343,7 +343,7 @@ def get_random_font() -> str:
         "weird",
     ]
 
-    return random.choice(fonts)
+    return random.choice(fonts)  # nosec B311: Used for cosmetic font selection, not security-critical
 
 
 def display_dynamic_banner() -> None:
