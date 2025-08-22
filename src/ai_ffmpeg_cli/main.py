@@ -18,6 +18,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from .ascii_art import display_welcome_banner
 from .command_builder import build_commands
 from .config import AppConfig
 from .config import load_config
@@ -30,6 +31,7 @@ from .custom_exceptions import ParseError
 from .intent_router import route_intent
 from .llm_client import LLMClient
 from .llm_client import OpenAIProvider
+from .token_tracker import TokenTracker
 from .version_info import __version__
 
 # Initialize console for Rich output
@@ -38,13 +40,19 @@ console = Console()
 # Initialize logger
 logger = logging.getLogger(__name__)
 
+# Initialize global token tracker
+token_tracker = TokenTracker()
+
 # Initialize Typer app with completion disabled and support for invocation without subcommands
 app = typer.Typer(add_completion=False, help="AI-powered ffmpeg CLI", invoke_without_command=True)
 
 
 def _display_welcome_screen() -> None:
     """Display a beautiful welcome screen for the interactive mode."""
-    # Create welcome panel
+    # Display ASCII art banner
+    display_welcome_banner()
+
+    # Create welcome panel with version info
     welcome_text = Text()
     welcome_text.append("ai-ffmpeg-cli", style="bold white")
     welcome_text.append(" v", style="dim")
@@ -239,6 +247,7 @@ def _display_help_tips() -> None:
         "Try: 'add subtitles to video.mp4'",
         "Type 'exit' or 'quit' to leave interactive mode",
         "Use Ctrl+C to cancel any operation",
+        "Type 'tokens' to see usage statistics",
     ]
 
     tip_text = Text()
@@ -257,6 +266,23 @@ def _display_help_tips() -> None:
 
     console.print(tip_panel)
     console.print()
+
+
+def _start_token_session(cfg: AppConfig) -> None:
+    """Start a new token tracking session."""
+    import uuid
+
+    session_id = str(uuid.uuid4())[:8]  # Short session ID
+    token_tracker.start_session(session_id, cfg.model)
+    logger.debug(f"Started token tracking session: {session_id}")
+
+
+def _display_token_summary() -> None:
+    """Display token usage summary at the end of session."""
+    if token_tracker.current_session and token_tracker.current_session.operations:
+        console.print()
+        token_tracker.display_session_summary()
+        token_tracker.display_detailed_usage()
 
 
 def _setup_logging(verbose: bool) -> None:
@@ -326,6 +352,9 @@ def _main_impl(
         if invoked_none:
             if prompt is not None:
                 try:
+                    # Start token tracking session for one-shot command
+                    _start_token_session(cfg)
+
                     # Execute one-shot command: scan context, parse intent, build and execute
                     context = scan(show_summary=False)  # Don't show summary for one-shot commands
                     client = _make_llm(cfg)
@@ -350,6 +379,10 @@ def _main_impl(
                         assume_yes=yes,
                         output_dir=Path(cfg.output_directory),
                     )
+
+                    # Display token summary for one-shot command
+                    _display_token_summary()
+
                     raise typer.Exit(code)
                 except (ParseError, BuildError, ExecError) as e:
                     console.print(f"[red]❌ Error:[/red] {e}")
@@ -357,8 +390,12 @@ def _main_impl(
             else:
                 # No subcommand and no prompt: enter interactive mode
                 if ctx is not None:
+                    # Start token tracking session
+                    _start_token_session(cfg)
                     nl(ctx=ctx, prompt=None)
-                return
+                    # Display token summary at the end
+                    _display_token_summary()
+                    return
     except ConfigError as e:
         console.print(f"[red]❌ Configuration Error:[/red] {e}")
         raise typer.Exit(1) from e
@@ -432,7 +469,7 @@ def _make_llm(cfg: AppConfig) -> LLMClient:
     try:
         # This will validate the API key format and presence
         api_key = cfg.get_api_key_for_client()
-        provider = OpenAIProvider(api_key=api_key, model=cfg.model)
+        provider = OpenAIProvider(api_key=api_key, model=cfg.model, token_tracker=token_tracker)
         return LLMClient(provider)
     except ConfigError:
         # Re-raise config errors for proper error handling
@@ -532,6 +569,14 @@ def nl(
                 if not line or line.lower() in {"exit", "quit"}:
                     console.print("[yellow]Goodbye![/yellow]")
                     break
+                if line.lower() == "tokens":
+                    # Display token usage statistics
+                    if token_tracker.current_session and token_tracker.current_session.operations:
+                        token_tracker.display_session_summary()
+                        token_tracker.display_detailed_usage()
+                    else:
+                        console.print("[dim]No token usage data available yet.[/dim]")
+                    continue
                 try:
                     handle_one(line)
                 except (ParseError, BuildError, ExecError) as e:

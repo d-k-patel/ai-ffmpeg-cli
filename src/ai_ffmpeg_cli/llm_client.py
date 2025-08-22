@@ -7,6 +7,7 @@ to parse natural language prompts into structured ffmpeg intents.
 from __future__ import annotations
 
 import json
+from typing import TYPE_CHECKING
 from typing import Any
 
 from pydantic import ValidationError
@@ -15,6 +16,9 @@ from .credential_security import create_secure_logger
 from .credential_security import sanitize_error_message
 from .custom_exceptions import ParseError
 from .intent_models import FfmpegIntent
+
+if TYPE_CHECKING:
+    from .token_tracker import TokenTracker
 
 # Create secure logger that masks sensitive information
 logger = create_secure_logger(__name__)
@@ -155,12 +159,13 @@ class OpenAIProvider(LLMProvider):
     including error handling and response processing.
     """
 
-    def __init__(self, api_key: str, model: str) -> None:
+    def __init__(self, api_key: str, model: str, token_tracker: TokenTracker | None = None) -> None:
         """Initialize OpenAI provider with API key and model.
 
         Args:
             api_key: OpenAI API key for authentication
             model: Model name to use for completions
+            token_tracker: Optional token tracker for monitoring usage
 
         Raises:
             Exception: When client initialization fails
@@ -173,6 +178,7 @@ class OpenAIProvider(LLMProvider):
         try:
             self.client = OpenAI(api_key=api_key)
             self.model = model
+            self.token_tracker = token_tracker
         except Exception as e:
             # Sanitize error message to prevent API key exposure
             sanitized_error = sanitize_error_message(str(e))
@@ -211,6 +217,30 @@ class OpenAIProvider(LLMProvider):
 
             content = rsp.choices[0].message.content or "{}"
             logger.debug(f"Received response length: {len(content)} characters")
+
+            # Track token usage if token tracker is available
+            if self.token_tracker and hasattr(rsp, "usage") and rsp.usage is not None:
+                input_tokens = rsp.usage.prompt_tokens if hasattr(rsp.usage, "prompt_tokens") else 0
+                output_tokens = (
+                    rsp.usage.completion_tokens if hasattr(rsp.usage, "completion_tokens") else 0
+                )
+                # Calculate cost estimate
+                cost_estimate = self.token_tracker.get_cost_estimate(
+                    self.model, input_tokens, output_tokens
+                )
+
+                # Track the operation
+                operation = self.token_tracker.track_operation(
+                    operation="parse_intent",
+                    model=self.model,
+                    input_text=system + "\n" + user,
+                    output_text=content,
+                    cost_estimate=cost_estimate,
+                )
+
+                # Display real-time usage
+                self.token_tracker.display_realtime_usage(operation)
+
             return content
 
         except Exception as e:

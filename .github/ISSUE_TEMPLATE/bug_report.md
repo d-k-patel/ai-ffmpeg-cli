@@ -15,7 +15,7 @@ A clear and concise description of what the bug is.
 3. Expected behavior: `...`
 
 ## Environment
-- **OS**: [e.g., macOS 14.0, Ubuntu 22.04, Windows 11]
+- **OS**: [e.g., macOS 14.0, Ubuntu 22.04]
 - **Python version**: [e.g., 3.10.0]
 - **aiclip version**: [e.g., 0.2.2]
 - **ffmpeg version**: [e.g., 6.0]
