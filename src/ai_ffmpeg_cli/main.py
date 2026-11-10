@@ -341,6 +341,12 @@ def _main_impl(
             cfg.dry_run = dry_run
         if output_dir:
             cfg.output_directory = output_dir
+        if not 1 <= timeout <= 300:
+            console.print(
+                "[red]❌ Configuration Error:[/red] "
+                "--timeout must be between 1 and 300 seconds."
+            )
+            raise typer.Exit(1)
         cfg.timeout_seconds = timeout
 
         # Store configuration in context for subcommands
